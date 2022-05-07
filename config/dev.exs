@@ -24,8 +24,7 @@ config :file_finder, FileFinderWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "5GC0Y8bcVBAykzylDSq7yCQ66y2Vu9L9lWWAurZXmv+HasJTrTGUNmZfn9xh9UKv",
   watchers: [
-    # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    node: ["build.js", "--watch", cd: Path.expand("../assets", __DIR__)]
   ]
 
 # ## SSL Support
