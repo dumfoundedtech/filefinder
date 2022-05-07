@@ -1,4 +1,5 @@
 const esbuild = require("esbuild");
+const ElmPlugin = require("esbuild-plugin-elm");
 
 const args = process.argv.slice(2);
 const watch = args.includes("--watch");
@@ -8,12 +9,10 @@ const loader = {
   // Add loaders for images/fonts/etc, e.g. { '.svg': 'file' }
 };
 
-const plugins = [
-  // Add and configure plugins here
-];
+const plugins = [ElmPlugin({ debug: true, clearOnWatch: true })];
 
 let opts = {
-  entryPoints: ["js/app.js"],
+  entryPoints: ["js/app.js", "js/main.js"],
   bundle: true,
   target: "es2017",
   outdir: "../priv/static/assets",

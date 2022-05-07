@@ -32,3 +32,5 @@ file_finder-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Elm
+elm-stuff
