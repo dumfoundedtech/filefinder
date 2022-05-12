@@ -37,6 +37,12 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Ueberauth Shopify authentication
+config :ueberauth, Ueberauth,
+  providers: [
+    shopify: {Ueberauth.Strategy.Shopify, [default_scope: "read_files,write_files,read_products"]}
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

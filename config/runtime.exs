@@ -83,3 +83,8 @@ if config_env() == :prod do
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
+
+# Ueberauth Shopify OAuth credentials
+config :ueberauth, Ueberauth.Strategy.Shopify.OAuth,
+  client_id: System.get_env("SHOPIFY_API_KEY"),
+  client_secret: System.get_env("SHOPIFY_SECRET")
