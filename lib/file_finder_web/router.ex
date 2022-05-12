@@ -27,6 +27,11 @@ defmodule FileFinderWeb.Router do
       get "/", PageController, :index
     end
 
+    scope "/auth" do
+      get "/:provider", AuthController, :request
+      get "/:provider/callback", AuthController, :callback
+    end
+
     get "/", MainController, :index
   end
 

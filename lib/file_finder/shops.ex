@@ -101,4 +101,33 @@ defmodule FileFinder.Shops do
   def change_shop(%Shop{} = shop, attrs \\ %{}) do
     Shop.changeset(shop, attrs)
   end
+
+  @doc """
+  Gets a shop by name or creates a shop if no shop is found.
+
+  ## Examples
+
+      iex> get_or_create_shop(%{name: "Existing shop"})
+      {:ok, %Shop{}}
+
+      iex> get_or_create_shop(%{name: "New shop"})
+      {:ok, %Shop{}}
+
+      iex> get_or_create_shop(%{name: ""})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def get_or_create_shop(%{name: name} = attrs \\ %{name: nil}) do
+    if name do
+      shop = Repo.get_by(Shop, name: name)
+
+      if shop do
+        {:ok, shop}
+      else
+        create_shop(attrs)
+      end
+    else
+      create_shop(attrs)
+    end
+  end
 end
