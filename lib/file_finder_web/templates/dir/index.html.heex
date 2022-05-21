@@ -1,0 +1,26 @@
+<h1>Listing Dirs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for dir <- @dirs do %>
+    <tr>
+      <td><%= dir.name %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.dir_path(@conn, :show, dir) %></span>
+        <span><%= link "Edit", to: Routes.dir_path(@conn, :edit, dir) %></span>
+        <span><%= link "Delete", to: Routes.dir_path(@conn, :delete, dir), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Dir", to: Routes.dir_path(@conn, :new) %></span>

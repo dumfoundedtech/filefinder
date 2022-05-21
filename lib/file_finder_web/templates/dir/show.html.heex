@@ -1,0 +1,13 @@
+<h1>Show Dir</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @dir.name %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.dir_path(@conn, :edit, @dir) %></span> |
+<span><%= link "Back", to: Routes.dir_path(@conn, :index) %></span>
