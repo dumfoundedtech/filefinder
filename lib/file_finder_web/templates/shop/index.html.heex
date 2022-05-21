@@ -1,0 +1,28 @@
+<h1>Listing Shops</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Token</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for shop <- @shops do %>
+    <tr>
+      <td><%= shop.name %></td>
+      <td><%= shop.token %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.shop_path(@conn, :show, shop) %></span>
+        <span><%= link "Edit", to: Routes.shop_path(@conn, :edit, shop) %></span>
+        <span><%= link "Delete", to: Routes.shop_path(@conn, :delete, shop), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Shop", to: Routes.shop_path(@conn, :new) %></span>

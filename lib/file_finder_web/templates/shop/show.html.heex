@@ -1,0 +1,18 @@
+<h1>Show Shop</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @shop.name %>
+  </li>
+
+  <li>
+    <strong>Token:</strong>
+    <%= @shop.token %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.shop_path(@conn, :edit, @shop) %></span> |
+<span><%= link "Back", to: Routes.shop_path(@conn, :index) %></span>
