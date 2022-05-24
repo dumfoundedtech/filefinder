@@ -25,6 +25,7 @@ defmodule FileFinderWeb.Router do
     scope "/admin" do
       pipe_through :admin
       resources "/dirs", DirController
+      resources "/files", FileController
       resources "/shops", ShopController
       get "/", PageController, :index
     end

@@ -1,0 +1,35 @@
+<.form let={f} for={@changeset} action={@action}>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <%= label f, :shopify_id %>
+  <%= text_input f, :shopify_id %>
+  <%= error_tag f, :shopify_id %>
+
+  <%= label f, :url %>
+  <%= text_input f, :url %>
+  <%= error_tag f, :url %>
+
+  <%= label f, :type %>
+  <%= select f, :type, Ecto.Enum.values(FileFinder.Files.File, :type), prompt: "Choose a value" %>
+  <%= error_tag f, :type %>
+
+  <%= label f, :alt %>
+  <%= text_input f, :alt %>
+  <%= error_tag f, :alt %>
+
+  <%= label f, :preview_url %>
+  <%= text_input f, :preview_url %>
+  <%= error_tag f, :preview_url %>
+
+  <%= label f, :shopify_timestamp %>
+  <%= datetime_select f, :shopify_timestamp %>
+  <%= error_tag f, :shopify_timestamp %>
+
+  <div>
+    <%= submit "Save" %>
+  </div>
+</.form>

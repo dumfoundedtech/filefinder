@@ -1,0 +1,36 @@
+<h1>Listing Files</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shopify</th>
+      <th>Url</th>
+      <th>Type</th>
+      <th>Alt</th>
+      <th>Preview url</th>
+      <th>Shopify timestamp</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for file <- @files do %>
+    <tr>
+      <td><%= file.shopify_id %></td>
+      <td><%= file.url %></td>
+      <td><%= file.type %></td>
+      <td><%= file.alt %></td>
+      <td><%= file.preview_url %></td>
+      <td><%= file.shopify_timestamp %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.file_path(@conn, :show, file) %></span>
+        <span><%= link "Edit", to: Routes.file_path(@conn, :edit, file) %></span>
+        <span><%= link "Delete", to: Routes.file_path(@conn, :delete, file), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New File", to: Routes.file_path(@conn, :new) %></span>

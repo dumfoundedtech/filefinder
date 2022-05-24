@@ -1,0 +1,38 @@
+<h1>Show File</h1>
+
+<ul>
+
+  <li>
+    <strong>Shopify:</strong>
+    <%= @file.shopify_id %>
+  </li>
+
+  <li>
+    <strong>Url:</strong>
+    <%= @file.url %>
+  </li>
+
+  <li>
+    <strong>Type:</strong>
+    <%= @file.type %>
+  </li>
+
+  <li>
+    <strong>Alt:</strong>
+    <%= @file.alt %>
+  </li>
+
+  <li>
+    <strong>Preview url:</strong>
+    <%= @file.preview_url %>
+  </li>
+
+  <li>
+    <strong>Shopify timestamp:</strong>
+    <%= @file.shopify_timestamp %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.file_path(@conn, :edit, @file) %></span> |
+<span><%= link "Back", to: Routes.file_path(@conn, :index) %></span>
