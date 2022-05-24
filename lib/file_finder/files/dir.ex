@@ -4,8 +4,9 @@ defmodule FileFinder.Files.Dir do
 
   schema "dirs" do
     field :name, :string
-    field :dir_id, :id
-    field :shop_id, :id
+    belongs_to :dir, FileFinder.Files.Dir
+    belongs_to :shop, FileFinder.Shops.Shop
+    has_many :files, FileFinder.Files.File
 
     timestamps()
   end
@@ -13,7 +14,7 @@ defmodule FileFinder.Files.Dir do
   @doc false
   def changeset(dir, attrs) do
     dir
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :dir_id, :shop_id])
+    |> validate_required([:name, :shop_id])
   end
 end

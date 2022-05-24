@@ -2,6 +2,7 @@ defmodule FileFinderWeb.DirControllerTest do
   use FileFinderWeb.ConnCase
 
   import FileFinder.FilesFixtures
+  import FileFinder.ShopsFixtures
 
   @create_attrs %{name: "some name"}
   @update_attrs %{name: "some updated name"}
@@ -22,8 +23,13 @@ defmodule FileFinderWeb.DirControllerTest do
   end
 
   describe "create dir" do
-    test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.dir_path(conn, :create), dir: @create_attrs)
+    setup [:create_shop]
+
+    test "redirects to show when data is valid", %{conn: conn, shop: shop} do
+      conn =
+        post(conn, Routes.dir_path(conn, :create),
+          dir: Map.merge(@create_attrs, %{shop_id: shop.id})
+        )
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.dir_path(conn, :show, id)
@@ -80,5 +86,10 @@ defmodule FileFinderWeb.DirControllerTest do
   defp create_dir(_) do
     dir = dir_fixture()
     %{dir: dir}
+  end
+
+  defp create_shop(_) do
+    shop = shop_fixture()
+    %{shop: shop}
   end
 end

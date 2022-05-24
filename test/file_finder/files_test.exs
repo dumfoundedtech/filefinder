@@ -7,6 +7,7 @@ defmodule FileFinder.FilesTest do
     alias FileFinder.Files.Dir
 
     import FileFinder.FilesFixtures
+    import FileFinder.ShopsFixtures
 
     @invalid_attrs %{name: nil}
 
@@ -21,7 +22,8 @@ defmodule FileFinder.FilesTest do
     end
 
     test "create_dir/1 with valid data creates a dir" do
-      valid_attrs = %{name: "some name"}
+      shop = shop_fixture()
+      valid_attrs = %{name: "some name", shop_id: shop.id}
 
       assert {:ok, %Dir{} = dir} = Files.create_dir(valid_attrs)
       assert dir.name == "some name"

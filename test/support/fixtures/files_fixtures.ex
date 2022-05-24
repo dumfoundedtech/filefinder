@@ -1,4 +1,6 @@
 defmodule FileFinder.FilesFixtures do
+  import FileFinder.ShopsFixtures
+
   @moduledoc """
   This module defines test helpers for creating
   entities via the `FileFinder.Files` context.
@@ -8,10 +10,13 @@ defmodule FileFinder.FilesFixtures do
   Generate a dir.
   """
   def dir_fixture(attrs \\ %{}) do
+    shop = shop_fixture()
+
     {:ok, dir} =
       attrs
       |> Enum.into(%{
-        name: "some name"
+        name: "some name",
+        shop_id: shop.id
       })
       |> FileFinder.Files.create_dir()
 

@@ -5,6 +5,8 @@ defmodule FileFinder.Shops.Shop do
   schema "shops" do
     field :name, :string
     field :token, :string
+    has_many :dirs, FileFinder.Files.Dir
+    has_many :files, FileFinder.Files.File
 
     timestamps()
   end
