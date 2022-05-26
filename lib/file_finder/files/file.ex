@@ -96,7 +96,6 @@ defmodule FileFinder.Files.File do
       :shopify_id,
       :url,
       :type,
-      :alt,
       :preview_url,
       :shopify_timestamp,
       :shop_id
@@ -123,7 +122,7 @@ defmodule FileFinder.Files.File do
         {:ok,
          changeset(%FileFinder.Files.File{}, %{
            "alt" => node["alt"],
-           "preview_url" => node["preview"]["url"],
+           "preview_url" => node["preview"]["image"]["url"],
            "shopify_id" => shopify_id,
            "shopify_timestamp" => node["createdAt"],
            "type" => type,

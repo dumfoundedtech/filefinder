@@ -6,7 +6,7 @@ defmodule FileFinder.Repo.Migrations.CreateFiles do
       add :shopify_id, :string, null: false
       add :url, :string, null: false
       add :type, :string, null: false
-      add :alt, :string, null: false
+      add :alt, :string, null: false, default: ""
       add :preview_url, :string, null: false
       add :shopify_timestamp, :utc_datetime, null: false
       add :dir_id, references(:dirs, on_delete: :delete_all)
