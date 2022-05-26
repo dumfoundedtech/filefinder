@@ -50,7 +50,8 @@ defmodule FileFinder.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:ueberauth_shopify,
        git: "https://github.com/yalabot/ueberauth_shopify",
-       branch: "fix-request-without-shop-crash"}
+       branch: "fix-request-without-shop-crash"},
+      {:neuron, "~> 5.0.0"}
     ]
   end
 

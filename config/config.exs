@@ -43,6 +43,9 @@ config :ueberauth, Ueberauth,
     shopify: {Ueberauth.Strategy.Shopify, [default_scope: "read_files,write_files,read_products"]}
   ]
 
+# Neuron GraphQL client
+config :neuron, FileFinder.Files.File, endpoint: "/admin/api/2022-04/graphql.json"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

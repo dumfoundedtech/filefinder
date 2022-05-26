@@ -88,3 +88,6 @@ end
 config :ueberauth, Ueberauth.Strategy.Shopify.OAuth,
   client_id: System.get_env("SHOPIFY_API_KEY"),
   client_secret: System.get_env("SHOPIFY_SECRET")
+
+# Neuron GraphQL client
+config :neuron, FileFinder.Files.File, connection_opts: []
