@@ -182,5 +182,6 @@ defmodule FileFinder.Files.File do
     )
 
     Neuron.query(query, vars)
+    |> FileFinder.pass_through_debug_log()
   end
 end

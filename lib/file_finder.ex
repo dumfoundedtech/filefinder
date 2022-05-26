@@ -6,4 +6,13 @@ defmodule FileFinder do
   Contexts are also responsible for managing your data, regardless
   if it comes from the database, an external API or others.
   """
+
+  require Logger
+
+  def pass_through_debug_log(x) do
+    inspect(x, pretty: true)
+    |> Logger.debug()
+
+    x
+  end
 end
