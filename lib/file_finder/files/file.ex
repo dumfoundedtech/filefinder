@@ -67,6 +67,7 @@ defmodule FileFinder.Files.File do
     ... on GenericFile {
       alt
       createdAt
+      fileStatus
       preview {
         image {
           url
@@ -77,6 +78,7 @@ defmodule FileFinder.Files.File do
     ... on MediaImage {
       alt
       createdAt
+      fileStatus
       image {
         url
       }
@@ -89,6 +91,7 @@ defmodule FileFinder.Files.File do
     ... on Video {
       alt
       createdAt
+      fileStatus
       originalSource {
         url
       }
@@ -239,8 +242,7 @@ defmodule FileFinder.Files.File do
     end
   end
 
-  # TODO: make private
-  def stage_upload(metadata, shop) do
+  defp stage_upload(metadata, shop) do
     vars = %{
       input: %{
         fileSize: metadata.filesize,
@@ -280,30 +282,16 @@ defmodule FileFinder.Files.File do
     end
   end
 
-  # TODO: make private
-  def upload_to_stage(file, url, params) do
-    # TODO: maybe use "form-data" method
-    # https://www.shopify.in/partners/blog/upload-files-graphql-react
-    # https://github.com/edgurgel/httpoison/issues/237
-    # https://stackoverflow.com/questions/33557133/http-post-multipart-with-named-file
-    # https://elixirforum.com/t/httpoison-post-multipart-with-more-form-than-the-file/4222/5
-    # HTTPoison.post(
-    #  url,
-    #  {:multipart,
-    #   [
-    #     {:file, file, {"form-data", [{:name, ""}, {:filename, ""}]}, []}
-    #   ]}
-    # )
+  defp upload_to_stage(file, url, params) do
     HTTPoison.post(
       url,
       {:multipart,
-       Enum.map(params, &{String.to_atom(&1["name"]), &1["value"]}) ++
-         {:file, file, []}}
+       Enum.map(params, &{&1["name"], &1["value"]}) ++
+         [{:file, file, []}]}
     )
   end
 
-  # TODO: make private
-  def shopify_create(url, alt, mimetype, shop) do
+  defp shopify_create(url, alt, mimetype, shop) do
     vars = %{
       files: %{
         alt: alt,
