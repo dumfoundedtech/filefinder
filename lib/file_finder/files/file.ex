@@ -225,6 +225,14 @@ defmodule FileFinder.Files.File do
   end
 
   @doc """
+  Creates a file on Shopify by first staging the file, then uploading the file
+  to the stage, then creating the file from the staged url
+  https://www.shopify.in/partners/blog/upload-files-graphql-react
+
+  ## Examples
+
+      iex> create_shopify_file("/path/to/file", "Alt", %{filesize: "1234", filename: "file.txt", mimetype: "text/plain"}, shop)
+      {:ok, %Neuron.Response{}}
   """
   def create_shopify_file(file, alt, metadata, shop) do
     case stage_upload(metadata, shop) do
