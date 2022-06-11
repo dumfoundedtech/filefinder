@@ -145,6 +145,18 @@ defmodule FileFinder.Files.File do
     }
   """
 
+  @shoify_file_delete_query """
+    mutation fileDelete($fileIds: [ID!]!) {
+      fileDelete(fileIds: $fileIds) {
+        deletedFileIds
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  """
+
   @doc """
   Returns file ids from Shopify.
 
@@ -322,6 +334,22 @@ defmodule FileFinder.Files.File do
       _ ->
         "FILE"
     end
+  end
+
+  @doc """
+  Deletes a file from Shopify.
+
+  ## Examples
+
+      iex> delete_shopify_file("gid://shopify/MediaImage/123456789", shop)
+      {:ok, %Neuron.Response{}}
+  """
+  def delete_shopify_file(shopify_id, shop) do
+    vars = %{
+      filesIds: [shopify_id]
+    }
+
+    send_shopify_request(@shoify_file_delete_query, vars, shop)
   end
 
   defp send_shopify_request(query, vars, shop) do
