@@ -38,10 +38,12 @@ defmodule FileFinderWeb.Router do
     get "/", MainController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", FileFinderWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", FileFinderWeb do
+    pipe_through :api
+
+    get "/shops/:shop_id/dirs", ApiDirController, :index
+    get "/shops/:shop_id/files", ApiFileController, :index
+  end
 
   # Enables LiveDashboard only for development
   #
