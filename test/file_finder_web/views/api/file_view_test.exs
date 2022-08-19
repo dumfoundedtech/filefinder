@@ -1,3 +1,3 @@
-defmodule FileFinderWeb.ApiFileViewTest do
+defmodule FileFinderWeb.Api.FileViewTest do
   use FileFinderWeb.ConnCase, async: true
 end

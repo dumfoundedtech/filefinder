@@ -1,4 +1,4 @@
-defmodule FileFinderWeb.ApiFileController do
+defmodule FileFinderWeb.Api.FileController do
   use FileFinderWeb, :controller
 
   def index(conn, %{"shop_id" => shop_id}) do

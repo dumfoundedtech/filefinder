@@ -38,7 +38,7 @@ defmodule FileFinderWeb.Router do
     get "/", MainController, :index
   end
 
-  scope "/api", FileFinderWeb do
+  scope "/api", FileFinderWeb, as: :api do
     pipe_through :api
 
     get "/shops/:shop_id/dirs", ApiDirController, :index

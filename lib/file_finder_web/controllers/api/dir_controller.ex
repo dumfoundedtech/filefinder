@@ -1,4 +1,4 @@
-defmodule FileFinderWeb.ApiDirController do
+defmodule FileFinderWeb.Api.DirController do
   use FileFinderWeb, :controller
 
   def index(conn, %{"shop_id" => shop_id}) do
@@ -8,5 +8,8 @@ defmodule FileFinderWeb.ApiDirController do
       |> FileFinder.Repo.preload(:dirs)
 
     render(conn, "index.json", dirs: shop.dirs)
+  end
+
+  def rename(conn, %{"id" => id, "name" => name}) do
   end
 end

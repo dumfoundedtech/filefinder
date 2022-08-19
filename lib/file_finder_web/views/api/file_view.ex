@@ -1,4 +1,4 @@
-defmodule FileFinderWeb.ApiFileView do
+defmodule FileFinderWeb.Api.FileView do
   use FileFinderWeb, :view
 
   def render("index.json", %{files: files}) do
