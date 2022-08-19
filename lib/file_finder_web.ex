@@ -74,6 +74,7 @@ defmodule FileFinderWeb do
       import Plug.Conn
       import Phoenix.Controller
       import Phoenix.LiveView.Router
+      import FileFinderWeb.Api.Auth, only: [authenticate_shop: 2]
     end
   end
 

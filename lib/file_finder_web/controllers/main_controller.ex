@@ -9,7 +9,7 @@ defmodule FileFinderWeb.MainController do
 
       conn
       |> assign(:shop_name, shop.name)
-      |> assign(:token, Phoenix.Token.sign(conn, shop.name, shop_id))
+      |> assign(:token, Phoenix.Token.sign(conn, "shop_id", shop_id))
       |> render("index.html")
     else
       raise FileFinderWeb.AuthError, "Unauthorized"

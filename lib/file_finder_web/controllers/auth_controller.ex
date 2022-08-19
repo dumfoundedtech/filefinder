@@ -11,7 +11,7 @@ defmodule FileFinderWeb.AuthController do
         {:ok, shop} ->
           conn
           |> assign(:shop, shop)
-          |> assign(:token, Phoenix.Token.sign(conn, shop.name, shop.id))
+          |> assign(:token, Phoenix.Token.sign(conn, "shop_id", shop.id))
           |> put_session(:shop_id, shop.id)
           |> redirect(to: "/")
 
