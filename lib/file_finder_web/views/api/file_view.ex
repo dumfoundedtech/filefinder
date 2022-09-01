@@ -36,6 +36,10 @@ defmodule FileFinderWeb.Api.FileView do
     %{errors: errors}
   end
 
+  def render("error.json", error) do
+    %{error: error}
+  end
+
   def render_error_detail({message, values}) do
     Enum.reduce(values, message, fn {k, v}, acc ->
       String.replace(acc, "%{#{k}}", to_string(v))
