@@ -42,15 +42,17 @@ defmodule FileFinderWeb.Router do
   scope "/api", FileFinderWeb.Api, as: :api do
     pipe_through [:api, :authenticate_shop]
 
+    get "/shop/dirs/root/dirs", DirController, :root_shop_dirs
+    get "/shop/dirs/:dir_id/dirs", DirController, :dir_shop_dirs
     patch "/dirs/:id", DirController, :update
     put "/dirs/:id", DirController, :update
     delete "/dirs/:id", DirController, :delete
-    get "/shop_dirs", DirController, :shop_dirs
 
-    patch "/shops/:id", FileController, :update
-    put "/shops/:id", FileController, :update
-    delete "/shops/:id", FileController, :delete
-    get "/shop_files", FileController, :shop_files
+    get "/shop/dirs/root/files", FileController, :root_shop_files
+    get "/shop/dirs/:dir_id/files", FileController, :dir_shop_files
+    patch "/files/:id", FileController, :update
+    put "/files/:id", FileController, :update
+    delete "/files/:id", FileController, :delete
   end
 
   # Enables LiveDashboard only for development

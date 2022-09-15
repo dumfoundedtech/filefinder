@@ -3,6 +3,16 @@ defmodule FileFinderWeb.Api.DirController do
 
   alias FileFinder.Files
 
+  def root_shop_dirs(conn, _params) do
+    shop_dirs = Files.list_shop_dirs(conn.assigns[:shop_id])
+    render(conn, "shop_dirs.json", shop_dirs: shop_dirs)
+  end
+
+  def dir_shop_dirs(conn, %{"dir_id" => dir_id}) do
+    shop_dirs = Files.list_shop_dirs(conn.assigns[:shop_id], dir_id)
+    render(conn, "shop_dirs.json", shop_dirs: shop_dirs)
+  end
+
   def update(conn, %{"id" => id, "dir" => dir_params}) do
     dir = Files.get_dir!(id)
 
@@ -19,14 +29,5 @@ defmodule FileFinderWeb.Api.DirController do
     dir = Files.get_dir!(id)
     {:ok, _dir} = Files.delete_dir(dir)
     render(conn, "dir.json", dir: dir)
-  end
-
-  def shop_dirs(conn, _params) do
-    # TODO: check shop_id against auth
-    shop =
-      FileFinder.Shops.get_shop!(1)
-      |> FileFinder.Repo.preload(:dirs)
-
-    render(conn, "shop_dirs.json", shop_dirs: shop.dirs)
   end
 end

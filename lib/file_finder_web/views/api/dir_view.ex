@@ -2,7 +2,7 @@ defmodule FileFinderWeb.Api.DirView do
   use FileFinderWeb, :view
 
   def render("shop_dirs.json", %{shop_dirs: shop_dirs}) do
-    render_many(shop_dirs, FileFinderWeb.ApiDirView, "dir.json")
+    render_many(shop_dirs, FileFinderWeb.Api.DirView, "dir.json")
   end
 
   def render("dir.json", %{api_dir: dir}) do

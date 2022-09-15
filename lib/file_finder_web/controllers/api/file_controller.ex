@@ -5,6 +5,16 @@ defmodule FileFinderWeb.Api.FileController do
   alias FileFinder.Files.File
   alias FileFinder.Shops
 
+  def root_shop_files(conn, _params) do
+    shop_files = Files.list_shop_files(conn.assigns[:shop_id])
+    render(conn, "shop_files.json", shop_files: shop_files)
+  end
+
+  def dir_shop_files(conn, %{"dir_id" => dir_id}) do
+    shop_files = Files.list_shop_files(conn.assigns[:shop_id], dir_id)
+    render(conn, "shop_files.json", shop_files: shop_files)
+  end
+
   def update(conn, %{"id" => id, "file" => file_params}) do
     file = Files.get_file!(id)
 
@@ -22,7 +32,7 @@ defmodule FileFinderWeb.Api.FileController do
 
     case Files.delete_file(file) do
       {:ok, _} ->
-        shop = Shops.get_shop!(file.shop_id)
+        shop = Shops.get_shop!(conn.assigns[:shop_id])
 
         with {:ok, _} <- Files.delete_file(file),
              {:ok, _} <- File.delete_shopify_file(file.shopify_id, shop) do
@@ -35,14 +45,5 @@ defmodule FileFinderWeb.Api.FileController do
             render(conn, "error.json", error)
         end
     end
-  end
-
-  def shop_files(conn, _params) do
-    # TODO: check shop_id against auth
-    shop =
-      FileFinder.Shops.get_shop!(1)
-      |> FileFinder.Repo.preload(:files)
-
-    render(conn, "shop_files.json", shop_files: shop.files)
   end
 end

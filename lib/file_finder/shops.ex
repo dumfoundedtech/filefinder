@@ -138,7 +138,6 @@ defmodule FileFinder.Shops do
     shop = get_shop!(id) |> Repo.preload(:files)
     {:ok, shopify_ids} = File.request_shopify_ids(shop)
 
-    # TODO: archive instead?
     deleted =
       shop.files
       |> Enum.reduce([], fn file, deleted ->
