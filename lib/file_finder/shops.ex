@@ -130,4 +130,40 @@ defmodule FileFinder.Shops do
       create_shop(attrs)
     end
   end
+
+  alias FileFinder.Files
+  alias FileFinder.Files.File
+
+  def sync_shop_files!(id) do
+    shop = get_shop!(id) |> Repo.preload(:files)
+    {:ok, shopify_ids} = File.request_shopify_ids(shop)
+
+    deleted =
+      shop.files
+      |> Enum.reduce([], fn file, deleted ->
+        if Enum.member?(shopify_ids, file.shopify_id) do
+          deleted
+        else
+          [Files.delete_file(file) | deleted]
+        end
+      end)
+
+    init_data = %{inserted: [], updated: [], deleted: deleted}
+
+    shopify_ids
+    |> Enum.reduce(init_data, fn shopify_id, data ->
+      {:ok, changeset} = File.request_changeset(shopify_id, shop)
+
+      cond do
+        changeset.changes == %{} ->
+          data
+
+        changeset.data.id ->
+          Map.merge(data, %{updated: data.updated ++ [Repo.update(changeset)]})
+
+        true ->
+          Map.merge(data, %{inserted: data.inserted ++ [Repo.insert(changeset)]})
+      end
+    end)
+  end
 end

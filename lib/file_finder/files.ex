@@ -102,6 +102,16 @@ defmodule FileFinder.Files do
     Dir.changeset(dir, attrs)
   end
 
+  def list_shop_dirs(shop_id, dir_id \\ nil) do
+    if dir_id do
+      from(d in Dir, where: d.shop_id == ^shop_id, where: d.dir_id == ^dir_id)
+      |> Repo.all()
+    else
+      from(d in Dir, where: d.shop_id == ^shop_id, where: is_nil(d.dir_id))
+      |> Repo.all()
+    end
+  end
+
   alias FileFinder.Files.File
 
   @doc """
@@ -196,5 +206,15 @@ defmodule FileFinder.Files do
   """
   def change_file(%File{} = file, attrs \\ %{}) do
     File.changeset(file, attrs)
+  end
+
+  def list_shop_files(shop_id, dir_id \\ nil) do
+    if dir_id do
+      from(f in File, where: f.shop_id == ^shop_id, where: f.dir_id == ^dir_id)
+      |> Repo.all()
+    else
+      from(f in File, where: f.shop_id == ^shop_id, where: is_nil(f.dir_id))
+      |> Repo.all()
+    end
   end
 end

@@ -9,6 +9,7 @@ defmodule FileFinderWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug FileFinderWeb.Api.Auth
   end
 
   pipeline :browser do
@@ -38,11 +39,20 @@ defmodule FileFinderWeb.Router do
     get "/", MainController, :index
   end
 
-  scope "/api", FileFinderWeb, as: :api do
-    pipe_through :api
+  scope "/api", FileFinderWeb.Api, as: :api do
+    pipe_through [:api, :authenticate_shop]
 
-    get "/shops/:shop_id/dirs", ApiDirController, :index
-    get "/shops/:shop_id/files", ApiFileController, :index
+    get "/shop/dirs/root/dirs", DirController, :root_shop_dirs
+    get "/shop/dirs/:dir_id/dirs", DirController, :dir_shop_dirs
+    patch "/dirs/:id", DirController, :update
+    put "/dirs/:id", DirController, :update
+    delete "/dirs/:id", DirController, :delete
+
+    get "/shop/dirs/root/files", FileController, :root_shop_files
+    get "/shop/dirs/:dir_id/files", FileController, :dir_shop_files
+    patch "/files/:id", FileController, :update
+    put "/files/:id", FileController, :update
+    delete "/files/:id", FileController, :delete
   end
 
   # Enables LiveDashboard only for development

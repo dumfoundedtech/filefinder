@@ -10,8 +10,6 @@ defmodule FileFinderWeb.AuthController do
       case Shops.get_or_create_shop(map_response_to_shop(auth, params)) do
         {:ok, shop} ->
           conn
-          |> assign(:shop, shop)
-          |> assign(:token, Phoenix.Token.sign(conn, shop.name, shop.id))
           |> put_session(:shop_id, shop.id)
           |> redirect(to: "/")
 

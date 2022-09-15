@@ -25,6 +25,9 @@ config :file_finder, FileFinderWeb.Endpoint,
   secret_key_base: "5GC0Y8bcVBAykzylDSq7yCQ66y2Vu9L9lWWAurZXmv+HasJTrTGUNmZfn9xh9UKv",
   watchers: [
     node: ["build.js", "--watch", cd: Path.expand("../assets", __DIR__)]
+  ],
+  protocol_options: [
+    idle_timeout: :infinity
   ]
 
 # ## SSL Support

@@ -2,6 +2,8 @@ defmodule FileFinder.Files.File do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias FileFinder.Repo
+
   schema "files" do
     field :alt, :string
     field :preview_url, :string
@@ -18,16 +20,20 @@ defmodule FileFinder.Files.File do
   @doc false
   def changeset(file, attrs) do
     file
-    |> cast(attrs, [
-      :shopify_id,
-      :url,
-      :type,
-      :alt,
-      :preview_url,
-      :shopify_timestamp,
-      :dir_id,
-      :shop_id
-    ])
+    |> cast(
+      attrs,
+      [
+        :shopify_id,
+        :url,
+        :type,
+        :alt,
+        :preview_url,
+        :shopify_timestamp,
+        :dir_id,
+        :shop_id
+      ],
+      empty_values: [:alt]
+    )
     |> validate_required([
       :shopify_id,
       :url,
@@ -198,6 +204,8 @@ defmodule FileFinder.Files.File do
   def request_changeset(shopify_id, shop) do
     case request_shopify_file(shopify_id, shop) do
       {:ok, node} ->
+        file = Repo.get_by(__MODULE__, shopify_id: shopify_id) || %__MODULE__{}
+
         {type, url} =
           case node["__typename"] do
             "MediaImage" ->
@@ -211,7 +219,7 @@ defmodule FileFinder.Files.File do
           end
 
         {:ok,
-         changeset(%FileFinder.Files.File{}, %{
+         changeset(file, %{
            "alt" => node["alt"],
            "preview_url" => node["preview"]["image"]["url"],
            "shopify_id" => shopify_id,
