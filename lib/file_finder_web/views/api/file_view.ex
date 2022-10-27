@@ -18,6 +18,7 @@ defmodule FileFinderWeb.Api.FileView do
       id: file.id,
       name: name,
       preview_url: file.preview_url,
+      type: file.type,
       url: file.url,
       dir_id: file.dir_id
     }
