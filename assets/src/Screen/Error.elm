@@ -34,11 +34,9 @@ view _ =
     Html.section
         [ Html.Attributes.id "error" ]
         [ Html.div []
-            [ Html.h1 [] [ Html.text "Well Shucks" ]
-            , Html.h2 []
-                [ Html.text
-                    """Something is broken. Refresh and if it doesn't get better
-                    we're here to help!"""
-                ]
+            [ Html.h1 [] [ Html.text "Bummer" ]
+            , Html.p []
+                [ Html.text """Something strange happened... refresh or reach
+                out to us!""" ]
             ]
         ]

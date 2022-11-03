@@ -3,6 +3,7 @@
   --blue: #15b0f0;
   --white: #ffffff;
   --heading-font: "Permanent Marker", cursive;
+  --paragraph-font: "Roboto Mono", monospace;
 }
 
 body {
@@ -19,8 +20,9 @@ h6 {
   margin: 0;
 }
 
-/* LOADING SCREEN */
+/* ERROR/LOADING SCREEN */
 
+#error,
 #loading {
   align-items: center;
   background-color: var(--blue);
@@ -30,21 +32,18 @@ h6 {
   justify-content: center;
 }
 
-#loading h1,
-#loading h2 {
+#error h1,
+#loading h1 {
   color: var(--white);
   font-family: var(--heading-font);
-}
-
-#loading h1 {
   font-size: 5rem;
   letter-spacing: 0.05em;
 }
 
-#loading h2 {
-  letter-spacing: 0.1em;
-  text-align: center;
-  text-transform: uppercase;
+#error p {
+  color: var(--white);
+  font-family: var(--paragraph-font);
+  width: 35em;
 }
 
 /* APP SCREEN */
