@@ -2,8 +2,18 @@
   --dark-gray: #0f172a;
   --blue: #15b0f0;
   --white: #ffffff;
+  --transparent-blue: rgba(21, 176, 240, 20%);
   --heading-font: "Permanent Marker", cursive;
   --paragraph-font: "Roboto Mono", monospace;
+}
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
 }
 
 body {
@@ -20,7 +30,14 @@ h6 {
   margin: 0;
 }
 
-/* ERROR/LOADING SCREEN */
+button {
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-family: var(--paragraph-font);
+  padding: 1rem;
+}
+
+/* ERROR AND LOADING SCREEN */
 
 #error,
 #loading {
@@ -52,7 +69,7 @@ h6 {
   background-color: var(--white);
 }
 
-#header {
+#app #header {
   align-items: center;
   background-color: var(--blue);
   display: flex;
@@ -62,25 +79,27 @@ h6 {
   padding-right: 2rem;
 }
 
-#header a {
+#app #header a {
   color: var(--white);
   text-decoration: none;
 }
 
-#header h1 {
+#app #header h1 {
+  font-size: 2.25rem;
   letter-spacing: 0.05em;
 }
 
-#main {
+#app #main {
   display: flex;
+  min-height: calc(100vh - 176px);
   flex-wrap: wrap;
 }
 
-#main div.content-wrap {
+#app #main div.content-wrap {
   padding: 1rem;
 }
 
-#main div.item {
+#app #main div.item {
   align-items: center;
   border-radius: 0.5rem;
   display: flex;
@@ -89,25 +108,81 @@ h6 {
   padding: 1rem;
 }
 
-div.item div.dir,
-div.item div.file {
+#app div.item div.dir,
+#app div.item div.file {
   height: 15rem;
   width: 15rem;
 }
 
-div.item div.file {
+#app div.item div.file {
   padding: 2rem;
 }
 
-div.idtem div.file img {
+#app div.item div.file img {
   height: 100%;
   object-fit: contain;
   width: 100%;
 }
 
-div.item div.dir-name,
-div.item div.file-name {
+#app div.item div.dir-name,
+#app div.item div.file-name {
   color: var(--dark-gray);
+  font-family: var(--paragraph-font);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 15rem;
+}
+
+#app #top-bar {
+  background: var(--transparent-blue);
+  color: var(--blue);
+  font-family: var(--paragraph-font);
+  height: 2rem;
+  line-height: 2rem;
+  padding-left: 2rem;
+  width: 100%;
+}
+
+#app #footer {
+  background-color: var(--blue);
+  display: flex;
+  height: 6rem;
+  justify-content: flex-end;
+  position: fixed;
+  width: 100%;
+}
+
+#app #footer-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: auto;
+  margin-top: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  width: calc(100% / 3);
+}
+
+#app #footer-actions button,
+#app #footer-actions svg.button-icon {
+  background: var(--white);
+}
+
+#app #footer-actions button {
+  color: var(--blue);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  padding: 1rem;
+  text-transform: lowercase;
+}
+
+#app #footer-actions svg.button-icon {
+  display: inline;
+  fill: var(--blue);
+  margin-right: 0.5rem;
+  vertical-align: bottom;
+  width: 1.5rem;
 }
 
 /* ANIMATIONS */

@@ -5,6 +5,7 @@ import Data.File
 import Dict
 import Html
 import Html.Attributes
+import Html.Events
 import Icons
 import Session
 
@@ -37,13 +38,19 @@ init ( dirs, files ) session =
 -- UPDATE
 
 
-type alias Msg =
-    ()
+type Msg
+    = ClickNewFolder
+    | ClickUploadFile
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update _ model =
-    ( model, Cmd.none )
+update msg model =
+    case msg of
+        ClickNewFolder ->
+            ( model, Cmd.none )
+
+        ClickUploadFile ->
+            ( model, Cmd.none )
 
 
 
@@ -77,10 +84,21 @@ viewMain model =
             List.map Tuple.second <| Dict.toList model.files
     in
     Html.main_ [ Html.Attributes.id "main" ]
-        (List.map viewItem <|
-            List.map viewDir dirs
-                ++ List.map viewFile files
+        (viewTopBar model
+            :: (List.map viewItem <|
+                    List.map viewDir dirs
+                        ++ List.map viewFile files
+               )
         )
+
+
+viewTopBar : Model -> Html.Html msg
+viewTopBar model =
+    Html.div [ Html.Attributes.id "top-bar" ]
+        [ Html.text <|
+            "Dir: "
+                ++ Data.Dir.idToString model.session.dirId
+        ]
 
 
 viewItem : List (Html.Html msg) -> Html.Html msg
@@ -100,10 +118,25 @@ viewFile : Data.File.File -> List (Html.Html msg)
 viewFile file =
     [ Html.div [ Html.Attributes.class "file" ]
         [ Html.img [ Html.Attributes.src file.previewUrl ] [] ]
-    , Html.div [ Html.Attributes.class "file-name" ] [ Html.text file.name ]
+    , Html.div
+        [ Html.Attributes.class "file-name"
+        , Html.Attributes.title file.name
+        ]
+        [ Html.text file.name ]
     ]
 
 
-viewFooter : Html.Html msg
+viewFooter : Html.Html Msg
 viewFooter =
-    Html.div [] []
+    Html.footer [ Html.Attributes.id "footer" ]
+        [ Html.div [ Html.Attributes.id "footer-actions" ]
+            [ Html.button [ Html.Events.onClick ClickNewFolder ]
+                [ Icons.add [ "button-icon" ]
+                , Html.text "New Folder"
+                ]
+            , Html.button [ Html.Events.onClick ClickUploadFile ]
+                [ Icons.cloud [ "button-icon" ]
+                , Html.text "Upload File"
+                ]
+            ]
+        ]
