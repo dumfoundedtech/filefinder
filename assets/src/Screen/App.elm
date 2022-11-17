@@ -84,7 +84,7 @@ viewMain model =
             List.map Tuple.second <| Dict.toList model.files
     in
     Html.main_ [ Html.Attributes.id "main" ]
-        (viewTopBar model
+        (viewInfoBar model
             :: (List.map viewItem <|
                     List.map viewDir dirs
                         ++ List.map viewFile files
@@ -92,12 +92,12 @@ viewMain model =
         )
 
 
-viewTopBar : Model -> Html.Html msg
-viewTopBar model =
-    Html.div [ Html.Attributes.id "top-bar" ]
+viewInfoBar : Model -> Html.Html msg
+viewInfoBar model =
+    Html.div [ Html.Attributes.id "info-bar" ]
         [ Html.text <|
-            "Dir: "
-                ++ Data.Dir.idToString model.session.dirId
+            Data.Dir.dirPath model.session.dirId model.dirs
+                ++ " directory"
         ]
 
 

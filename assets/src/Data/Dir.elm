@@ -2,6 +2,7 @@ module Data.Dir exposing
     ( Data
     , Dir
     , Id
+    , dirPath
     , getDirShopDirs
     , getRootShopDirs
     , idDecoder
@@ -147,3 +148,32 @@ getDirShopDirs id { token, tracker, tagger } =
         , timeout = Nothing
         , tracker = tracker
         }
+
+
+
+-- DIR PATH
+
+
+dirPath : Id -> Data -> String
+dirPath id data =
+    dirPathHelp id data ""
+
+
+dirPathHelp : Id -> Data -> String -> String
+dirPathHelp id data path =
+    case id of
+        Root ->
+            if String.isEmpty path then
+                "/root"
+
+            else
+                "/root/" ++ path
+
+        Sub id_ ->
+            case Dict.get (String.fromInt id_) data of
+                Just dir ->
+                    dirPathHelp dir.id data <|
+                        String.join "/" [ dir.name, path ]
+
+                Nothing ->
+                    ""

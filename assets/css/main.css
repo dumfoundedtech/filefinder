@@ -135,7 +135,7 @@ button {
   width: 15rem;
 }
 
-#app #top-bar {
+#app #info-bar {
   background: var(--transparent-blue);
   color: var(--blue);
   font-family: var(--paragraph-font);
