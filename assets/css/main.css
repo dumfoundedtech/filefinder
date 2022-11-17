@@ -2,7 +2,7 @@
   --dark-gray: #0f172a;
   --blue: #15b0f0;
   --white: #ffffff;
-  --transparent-blue: rgba(21, 176, 240, 20%);
+  --transparent-blue: #d7f0fc;
   --heading-font: "Permanent Marker", cursive;
   --paragraph-font: "Roboto Mono", monospace;
 }
@@ -91,12 +91,18 @@ button {
 
 #app #main {
   display: flex;
-  min-height: calc(100vh - 176px);
   flex-wrap: wrap;
+  min-height: calc(100vh - 176px);
+  padding-bottom: 2rem;
 }
 
 #app #main div.content-wrap {
   padding: 1rem;
+}
+
+#app #main div.item-wrap {
+  margin-left: 2rem;
+  margin-top: 2rem;
 }
 
 #app #main div.item {
@@ -106,6 +112,11 @@ button {
   flex-direction: column;
   justify-content: flex-end;
   padding: 1rem;
+}
+
+#app #main div.item:hover {
+  background-color: var(--transparent-blue);
+  cursor: pointer;
 }
 
 #app div.item div.dir,
@@ -176,6 +187,13 @@ button {
   line-height: 1.5rem;
   padding: 1rem;
   text-transform: lowercase;
+}
+
+#app #footer-actions button:hover {
+  background-color: var(--transparent-blue);
+}
+#app #footer-actions button:hover svg.button-icon {
+  background-color: var(--transparent-blue);
 }
 
 #app #footer-actions svg.button-icon {
