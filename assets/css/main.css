@@ -223,6 +223,35 @@ button {
   width: 1.5rem;
 }
 
+#app #modal {
+  border-radius: 0.5rem;
+  height: 80%;
+  position: relative;
+  width: 60%;
+}
+
+#app #modal div#modal-close {
+  padding: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+#app #modal svg.close-icon {
+  cursor: pointer;
+  height: 2rem;
+  width: 2rem;
+}
+
+#app #modal svg.close-icon:hover {
+  opacity: 0.6;
+}
+
+#app #modal::backdrop {
+  backdrop-filter: blur(2px);
+  background-color: rgba(24, 176, 240, 0.2);
+}
+
 /* ANIMATIONS */
 
 .fade-in {

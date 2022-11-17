@@ -57,6 +57,7 @@ type Msg
     | ClickUploadFile
     | ClickDir Data.Dir.Dir
     | ClickFile Data.File.File
+    | ClickCloseModal
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -73,6 +74,9 @@ update msg model =
 
         ClickFile file ->
             ( { model | modal = EditFile file }, toggleModal () )
+
+        ClickCloseModal ->
+            ( model, toggleModal () )
 
 
 
@@ -186,7 +190,16 @@ viewFooter =
 
 viewModal : Model -> Html.Html Msg
 viewModal model =
-    Html.node "dialog" [ Html.Attributes.id "modal" ] (viewModalContent model)
+    Html.node "dialog"
+        [ Html.Attributes.id "modal" ]
+        [ Html.div
+            [ Html.Attributes.id "modal-close"
+            , Html.Events.onClick ClickCloseModal
+            ]
+            [ Icons.close [ "close-icon" ] ]
+        , Html.div [ Html.Attributes.id "modal-content" ]
+            (viewModalContent model)
+        ]
 
 
 viewModalContent : Model -> List (Html.Html Msg)
