@@ -1,4 +1,4 @@
-module Screen.App exposing (Model, Msg, init, update, view)
+port module Screen.App exposing (Model, Msg, init, update, view)
 
 import Data.Dir
 import Data.File
@@ -11,6 +11,13 @@ import Session
 
 
 
+-- PORTS
+
+
+port toggleModal : () -> Cmd msg
+
+
+
 -- MODEL
 
 
@@ -18,7 +25,13 @@ type alias Model =
     { session : Session.Session
     , dirs : Data.Dir.Data
     , files : Data.File.Data
+    , modal : Modal
     }
+
+
+type Modal
+    = EditFile Data.File.File
+    | NoModal
 
 
 init :
@@ -29,6 +42,7 @@ init ( dirs, files ) session =
     ( { session = session
       , dirs = dirs
       , files = files
+      , modal = NoModal
       }
     , Cmd.none
     )
@@ -58,7 +72,7 @@ update msg model =
             ( model, Cmd.none )
 
         ClickFile file ->
-            ( model, Cmd.none )
+            ( { model | modal = EditFile file }, toggleModal () )
 
 
 
@@ -71,6 +85,7 @@ view model =
         [ viewHeader
         , viewMain model
         , viewFooter
+        , viewModal model
         ]
 
 
@@ -167,3 +182,18 @@ viewFooter =
                 ]
             ]
         ]
+
+
+viewModal : Model -> Html.Html Msg
+viewModal model =
+    Html.node "dialog" [ Html.Attributes.id "modal" ] (viewModalContent model)
+
+
+viewModalContent : Model -> List (Html.Html Msg)
+viewModalContent model =
+    case model.modal of
+        EditFile file ->
+            []
+
+        NoModal ->
+            []
