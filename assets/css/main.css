@@ -129,6 +129,7 @@ button {
   color: var(--dark-gray);
   font-family: var(--paragraph-font);
   overflow: hidden;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 15rem;
