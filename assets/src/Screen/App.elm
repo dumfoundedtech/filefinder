@@ -41,6 +41,8 @@ init ( dirs, files ) session =
 type Msg
     = ClickNewFolder
     | ClickUploadFile
+    | ClickDir Data.Dir.Dir
+    | ClickFile Data.File.File
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -50,6 +52,12 @@ update msg model =
             ( model, Cmd.none )
 
         ClickUploadFile ->
+            ( model, Cmd.none )
+
+        ClickDir dir ->
+            ( model, Cmd.none )
+
+        ClickFile file ->
             ( model, Cmd.none )
 
 
@@ -101,29 +109,36 @@ viewInfoBar model =
         ]
 
 
-viewItem : List (Html.Html msg) -> Html.Html msg
+viewItem : Html.Html Msg -> Html.Html Msg
 viewItem item =
-    Html.div [ Html.Attributes.class "item-wrap" ]
-        [ Html.div [ Html.Attributes.class "item" ] item ]
+    Html.div [ Html.Attributes.class "item-wrap" ] [ item ]
 
 
-viewDir : Data.Dir.Dir -> List (Html.Html msg)
+viewDir : Data.Dir.Dir -> Html.Html Msg
 viewDir dir =
-    [ Html.div [ Html.Attributes.class "dir" ] [ Icons.dir [] ]
-    , Html.div [ Html.Attributes.class "dir-name" ] [ Html.text dir.name ]
-    ]
-
-
-viewFile : Data.File.File -> List (Html.Html msg)
-viewFile file =
-    [ Html.div [ Html.Attributes.class "file" ]
-        [ Html.img [ Html.Attributes.src file.previewUrl ] [] ]
-    , Html.div
-        [ Html.Attributes.class "file-name"
-        , Html.Attributes.title file.name
+    Html.div
+        [ Html.Attributes.class "item"
+        , Html.Events.onClick <| ClickDir dir
         ]
-        [ Html.text file.name ]
-    ]
+        [ Html.div [ Html.Attributes.class "dir" ] [ Icons.dir [] ]
+        , Html.div [ Html.Attributes.class "dir-name" ] [ Html.text dir.name ]
+        ]
+
+
+viewFile : Data.File.File -> Html.Html Msg
+viewFile file =
+    Html.div
+        [ Html.Attributes.class "item"
+        , Html.Events.onClick <| ClickFile file
+        ]
+        [ Html.div [ Html.Attributes.class "file" ]
+            [ Html.img [ Html.Attributes.src file.previewUrl ] [] ]
+        , Html.div
+            [ Html.Attributes.class "file-name"
+            , Html.Attributes.title file.name
+            ]
+            [ Html.text file.name ]
+        ]
 
 
 viewFooter : Html.Html Msg
