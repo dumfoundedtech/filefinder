@@ -160,9 +160,28 @@ button {
   background-color: var(--blue);
   display: flex;
   height: 6rem;
-  justify-content: flex-end;
+  justify-content: space-between;
   position: fixed;
   width: 100%;
+}
+
+#app #footer-links {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 2rem;
+}
+
+#app a.footer-link {
+  color: var(--white);
+  display: block;
+  font-family: var(--paragraph-font);
+  opacity: 0.8;
+  padding: 0.25rem;
+}
+
+#app a.footer-link:hover {
+  opacity: 1;
 }
 
 #app #footer-actions {

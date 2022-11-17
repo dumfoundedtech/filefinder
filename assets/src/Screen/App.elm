@@ -129,7 +129,19 @@ viewFile file =
 viewFooter : Html.Html Msg
 viewFooter =
     Html.footer [ Html.Attributes.id "footer" ]
-        [ Html.div [ Html.Attributes.id "footer-actions" ]
+        [ Html.div [ Html.Attributes.id "footer-links" ]
+            [ Html.a
+                [ Html.Attributes.class "footer-link"
+                , Html.Attributes.href "#"
+                ]
+                [ Html.text "feedback" ]
+            , Html.a
+                [ Html.Attributes.class "footer-link"
+                , Html.Attributes.href "#"
+                ]
+                [ Html.text "support" ]
+            ]
+        , Html.div [ Html.Attributes.id "footer-actions" ]
             [ Html.button [ Html.Events.onClick ClickNewFolder ]
                 [ Icons.add [ "button-icon" ]
                 , Html.text "New Folder"
