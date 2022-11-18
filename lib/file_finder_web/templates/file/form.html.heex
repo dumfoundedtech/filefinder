@@ -17,6 +17,10 @@
   <%= select f, :type, Ecto.Enum.values(FileFinder.Files.File, :type), prompt: "Choose a value" %>
   <%= error_tag f, :type %>
 
+  <%= label f, :mime_type %>
+  <%= text_input f, :mime_type %>
+  <%= error_tag f, :mime_type %>
+
   <%= label f, :alt %>
   <%= text_input f, :alt %>
   <%= error_tag f, :alt %>

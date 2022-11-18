@@ -16,6 +16,7 @@ type alias File =
     , name : String
     , previewUrl : String
     , type_ : Type_
+    , mimeType : String
     , url : String
     , dirId : Data.Dir.Id
     }
@@ -31,11 +32,12 @@ type alias Data =
 
 decoder : Json.Decode.Decoder File
 decoder =
-    Json.Decode.map6 File
+    Json.Decode.map7 File
         (Json.Decode.field "id" Json.Decode.int)
         (Json.Decode.field "name" Json.Decode.string)
         (Json.Decode.field "preview_url" Json.Decode.string)
         (Json.Decode.field "type" typeDecoder)
+        (Json.Decode.field "mime_type" Json.Decode.string)
         (Json.Decode.field "url" Json.Decode.string)
         (Json.Decode.field "dir_id" Data.Dir.optionalIdDecoder)
 

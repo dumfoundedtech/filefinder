@@ -93,6 +93,7 @@ defmodule FileFinder.FilesTest do
         shopify_id: "some shopify_id",
         shopify_timestamp: ~U[2022-05-23 01:31:00Z],
         type: :file,
+        mime_type: "text/plain",
         url: "some url",
         shop_id: shop.id
       }
@@ -103,6 +104,7 @@ defmodule FileFinder.FilesTest do
       assert file.shopify_id == "some shopify_id"
       assert file.shopify_timestamp == ~U[2022-05-23 01:31:00Z]
       assert file.type == :file
+      assert file.mime_type == "text/plain"
       assert file.url == "some url"
     end
 

@@ -10,6 +10,7 @@ defmodule FileFinder.Files.File do
     field :shopify_id, :string
     field :shopify_timestamp, :utc_datetime
     field :type, Ecto.Enum, values: [:file, :image, :video]
+    field :mime_type, :string
     field :url, :string
     belongs_to :dir, FileFinder.Files.Dir
     belongs_to :shop, FileFinder.Shops.Shop
@@ -26,6 +27,7 @@ defmodule FileFinder.Files.File do
         :shopify_id,
         :url,
         :type,
+        :mime_type,
         :alt,
         :preview_url,
         :shopify_timestamp,
@@ -38,6 +40,7 @@ defmodule FileFinder.Files.File do
       :shopify_id,
       :url,
       :type,
+      :mime_type,
       :preview_url,
       :shopify_timestamp,
       :shop_id
@@ -74,6 +77,7 @@ defmodule FileFinder.Files.File do
       alt
       createdAt
       fileStatus
+      mimeType
       preview {
         image {
           url
@@ -88,6 +92,7 @@ defmodule FileFinder.Files.File do
       image {
         url
       }
+      mimeType
       preview {
         image {
           url
@@ -206,16 +211,16 @@ defmodule FileFinder.Files.File do
       {:ok, node} ->
         file = Repo.get_by(__MODULE__, shopify_id: shopify_id) || %__MODULE__{}
 
-        {type, url} =
+        {type, mime_type, url} =
           case node["__typename"] do
             "MediaImage" ->
-              {:image, node["image"]["url"]}
+              {:image, node["mimeType"], node["image"]["url"]}
 
             "Video" ->
-              {:video, node["originalSource"]["url"]}
+              {:video, "video/mp4", node["originalSource"]["url"]}
 
             _ ->
-              {:file, node["url"]}
+              {:file, node["mimeType"], node["url"]}
           end
 
         {:ok,
@@ -225,6 +230,7 @@ defmodule FileFinder.Files.File do
            "shopify_id" => shopify_id,
            "shopify_timestamp" => node["createdAt"],
            "type" => type,
+           "mime_type" => mime_type,
            "url" => url,
            "shop_id" => shop.id
          })}
