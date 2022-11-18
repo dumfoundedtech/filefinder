@@ -68,12 +68,12 @@ typeDecoder =
                 "image" ->
                     Json.Decode.succeed Image
 
-                "Video" ->
+                "video" ->
                     Json.Decode.succeed Video
 
                 _ ->
                     Json.Decode.fail <|
-                        "Unknown file ttype \""
+                        "Unknown file type \""
                             ++ type_
                             ++ "\"."
         )
