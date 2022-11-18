@@ -3,6 +3,7 @@ port module Screen.App exposing (Model, Msg, init, update, view)
 import Data.Dir
 import Data.File
 import Dict
+import File.Download
 import Html
 import Html.Attributes
 import Html.Events
@@ -12,6 +13,9 @@ import Session
 
 
 -- PORTS
+
+
+port copyToClipboard : String -> Cmd msg
 
 
 port toggleModal : () -> Cmd msg
@@ -57,6 +61,10 @@ type Msg
     | ClickUploadFile
     | ClickDir Data.Dir.Dir
     | ClickFile Data.File.File
+    | ClickCopyFileUrl
+    | ClickDownloadFile
+    | ClickMoveFile
+    | ClickDeleteFile
     | ClickCloseModal
 
 
@@ -74,6 +82,28 @@ update msg model =
 
         ClickFile file ->
             ( { model | modal = EditFile file }, toggleModal () )
+
+        ClickCopyFileUrl ->
+            case model.modal of
+                EditFile file ->
+                    ( model, copyToClipboard file.url )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ClickDownloadFile ->
+            case model.modal of
+                EditFile file ->
+                    ( model, File.Download.url file.url )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ClickMoveFile ->
+            ( model, Cmd.none )
+
+        ClickDeleteFile ->
+            ( model, Cmd.none )
 
         ClickCloseModal ->
             ( model, toggleModal () )
@@ -206,7 +236,33 @@ viewModalContent : Model -> List (Html.Html Msg)
 viewModalContent model =
     case model.modal of
         EditFile file ->
-            []
+            [ Html.div [ Html.Attributes.id "modal-item-wrap" ]
+                [ Html.div [ Html.Attributes.class "item" ]
+                    [ Html.div [ Html.Attributes.class "file-name" ]
+                        [ Html.text <|
+                            String.join "/"
+                                [ Data.Dir.dirPath file.dirId model.dirs
+                                , file.name
+                                ]
+                        ]
+                    , Html.div [ Html.Attributes.class "file" ]
+                        [ Html.img [ Html.Attributes.src file.previewUrl ] [] ]
+                    ]
+                , Html.div [ Html.Attributes.id "modal-item-actions" ]
+                    [ Html.button [ Html.Events.onClick ClickCopyFileUrl ]
+                        [ Html.text "Copy URL" ]
+                    , Html.button [ Html.Events.onClick ClickDownloadFile ]
+                        [ Html.text "Download" ]
+                    , Html.button [ Html.Events.onClick ClickMoveFile ]
+                        [ Html.text "Move" ]
+                    , Html.button
+                        [ Html.Attributes.id "modal-item-delete-action"
+                        , Html.Events.onClick ClickDeleteFile
+                        ]
+                        [ Html.text "Delete" ]
+                    ]
+                ]
+            ]
 
         NoModal ->
             []

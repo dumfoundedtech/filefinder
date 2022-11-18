@@ -1,6 +1,7 @@
 :root {
   --dark-gray: #0f172a;
   --blue: #15b0f0;
+  --red: #d65c5c;
   --white: #ffffff;
   --transparent-blue: #d7f0fc;
   --heading-font: "Permanent Marker", cursive;
@@ -228,6 +229,7 @@ button {
   height: 80%;
   position: relative;
   width: 60%;
+  padding: 0;
 }
 
 #app #modal div#modal-close {
@@ -250,6 +252,62 @@ button {
 #app #modal::backdrop {
   backdrop-filter: blur(2px);
   background-color: rgba(24, 176, 240, 0.2);
+}
+
+#app #modal-content {
+  height: 100%;
+  width: 100%;
+}
+
+#app #modal-item-wrap {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+#app #modal-item-wrap div.file-name {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+#app #modal-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+#app #modal-item-actions button {
+  background: var(--white);
+  border: 2px solid var(--blue);
+  color: var(--blue);
+  font-size: 0.875rem;
+  letter-spacing: 0.05rem;
+  line-height: 1.25rem;
+  margin-right: 2rem;
+  width: 7rem;
+}
+
+#app #modal-item-actions button:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+
+#app #modal-item-actions button:last-of-type {
+  margin-right: 0;
+}
+
+#app #modal-item-actions button#modal-item-delete-action {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+#app #modal-item-actions button#modal-item-delete-action:hover {
+  background: var(--red);
+  color: var(--white);
 }
 
 /* ANIMATIONS */
