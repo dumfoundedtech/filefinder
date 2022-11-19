@@ -21,11 +21,12 @@ defmodule FileFinderWeb.Api.FileView do
 
     %{
       id: file.id,
-      name: name,
-      preview_url: file.preview_url,
       type: file.type,
-      mime_type: file.mime_type,
+      name: name,
       url: file.url,
+      preview_url: file.preview_url,
+      mime_type: file.mime_type,
+      bytes: file.bytes,
       dir_id: file.dir_id
     }
   end

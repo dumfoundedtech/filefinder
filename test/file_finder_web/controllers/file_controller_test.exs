@@ -6,29 +6,32 @@ defmodule FileFinderWeb.FileControllerTest do
 
   @create_attrs %{
     alt: "some alt",
+    bytes: 5,
+    mime_type: "text/plain",
     preview_url: "some preview_url",
     shopify_id: "some shopify_id",
     shopify_timestamp: ~U[2022-05-23 01:31:00Z],
     type: :file,
-    mime_type: "text/plain",
     url: "some url"
   }
   @update_attrs %{
     alt: "some updated alt",
+    bytes: 6,
+    mime_type: "image/jpeg",
     preview_url: "some updated preview_url",
     shopify_id: "some updated shopify_id",
     shopify_timestamp: ~U[2022-05-24 01:31:00Z],
     type: :image,
-    mime_type: "image/jpeg",
     url: "some updated url"
   }
   @invalid_attrs %{
     alt: nil,
+    bytes: nil,
+    mime_type: nil,
     preview_url: nil,
     shopify_id: nil,
     shopify_timestamp: nil,
     type: nil,
-    mime_type: nil,
     url: nil
   }
 

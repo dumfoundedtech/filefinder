@@ -13,11 +13,12 @@ import Json.Decode
 
 type alias File =
     { id : Int
-    , name : String
-    , previewUrl : String
     , type_ : Type_
-    , mimeType : String
+    , name : String
     , url : String
+    , previewUrl : String
+    , mimeType : String
+    , bytes : Int
     , dirId : Data.Dir.Id
     }
 
@@ -32,13 +33,14 @@ type alias Data =
 
 decoder : Json.Decode.Decoder File
 decoder =
-    Json.Decode.map7 File
+    Json.Decode.map8 File
         (Json.Decode.field "id" Json.Decode.int)
-        (Json.Decode.field "name" Json.Decode.string)
-        (Json.Decode.field "preview_url" Json.Decode.string)
         (Json.Decode.field "type" typeDecoder)
-        (Json.Decode.field "mime_type" Json.Decode.string)
+        (Json.Decode.field "name" Json.Decode.string)
         (Json.Decode.field "url" Json.Decode.string)
+        (Json.Decode.field "preview_url" Json.Decode.string)
+        (Json.Decode.field "mime_type" Json.Decode.string)
+        (Json.Decode.field "bytes" Json.Decode.int)
         (Json.Decode.field "dir_id" Data.Dir.optionalIdDecoder)
 
 

@@ -43,13 +43,14 @@ defmodule FileFinder.FilesFixtures do
       attrs
       |> Enum.into(%{
         alt: "some alt",
+        bytes: 5,
+        mime_type: "text/plain",
         preview_url: "some preview_url",
+        shop_id: shop.id,
         shopify_id: unique_file_shopify_id(),
         shopify_timestamp: ~U[2022-05-23 01:31:00Z],
         type: :file,
-        mime_type: "text/plain",
-        url: unique_file_url(),
-        shop_id: shop.id
+        url: unique_file_url()
       })
       |> FileFinder.Files.create_file()
 

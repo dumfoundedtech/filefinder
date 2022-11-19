@@ -6,11 +6,12 @@ defmodule FileFinder.Files.File do
 
   schema "files" do
     field :alt, :string
+    field :bytes, :integer
+    field :mime_type, :string
     field :preview_url, :string
     field :shopify_id, :string
     field :shopify_timestamp, :utc_datetime
     field :type, Ecto.Enum, values: [:file, :image, :video]
-    field :mime_type, :string
     field :url, :string
     belongs_to :dir, FileFinder.Files.Dir
     belongs_to :shop, FileFinder.Shops.Shop
@@ -27,9 +28,10 @@ defmodule FileFinder.Files.File do
         :shopify_id,
         :url,
         :type,
-        :mime_type,
         :alt,
         :preview_url,
+        :mime_type,
+        :bytes,
         :shopify_timestamp,
         :dir_id,
         :shop_id
@@ -40,8 +42,9 @@ defmodule FileFinder.Files.File do
       :shopify_id,
       :url,
       :type,
-      :mime_type,
       :preview_url,
+      :mime_type,
+      :bytes,
       :shopify_timestamp,
       :shop_id
     ])
@@ -78,6 +81,7 @@ defmodule FileFinder.Files.File do
       createdAt
       fileStatus
       mimeType
+      originalFileSize
       preview {
         image {
           url
@@ -93,6 +97,9 @@ defmodule FileFinder.Files.File do
         url
       }
       mimeType
+      originalSource {
+        fileSize
+      }
       preview {
         image {
           url
@@ -104,6 +111,8 @@ defmodule FileFinder.Files.File do
       createdAt
       fileStatus
       originalSource {
+        fileSize
+        mimeType
         url
       }
       preview {
@@ -211,28 +220,44 @@ defmodule FileFinder.Files.File do
       {:ok, node} ->
         file = Repo.get_by(__MODULE__, shopify_id: shopify_id) || %__MODULE__{}
 
-        {type, mime_type, url} =
+        metadata =
           case node["__typename"] do
             "MediaImage" ->
-              {:image, node["mimeType"], node["image"]["url"]}
+              %{
+                bytes: node["originalSource"]["fileSize"],
+                mime_type: node["mimeType"],
+                type: :image,
+                url: node["image"]["url"]
+              }
 
             "Video" ->
-              {:video, "video/mp4", node["originalSource"]["url"]}
+              %{
+                bytes: node["originalSource"]["fileSize"],
+                mime_type: node["originalSource"]["mimeType"],
+                type: :video,
+                url: node["originalSource"]["url"]
+              }
 
             _ ->
-              {:file, node["mimeType"], node["url"]}
+              %{
+                bytes: node["originalFileSize"],
+                mime_type: node["mimeType"],
+                type: :file,
+                url: node["url"]
+              }
           end
 
         {:ok,
          changeset(file, %{
            "alt" => node["alt"],
+           "bytes" => metadata.bytes,
+           "mime_type" => metadata.mime_type,
            "preview_url" => node["preview"]["image"]["url"],
+           "shop_id" => shop.id,
            "shopify_id" => shopify_id,
            "shopify_timestamp" => node["createdAt"],
-           "type" => type,
-           "mime_type" => mime_type,
-           "url" => url,
-           "shop_id" => shop.id
+           "type" => metadata.type,
+           "url" => metadata.url
          })}
 
       {:error, error} ->
