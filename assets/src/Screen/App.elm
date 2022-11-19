@@ -1,4 +1,4 @@
-port module Screen.App exposing (Model, Msg, init, update, view)
+module Screen.App exposing (Model, Msg, init, update, view)
 
 import Data.Dir
 import Data.File
@@ -8,17 +8,9 @@ import Html
 import Html.Attributes
 import Html.Events
 import Icons
+import Ports
+import Screen.App.FileModal
 import Session
-
-
-
--- PORTS
-
-
-port copyToClipboard : String -> Cmd msg
-
-
-port toggleModal : () -> Cmd msg
 
 
 
@@ -34,8 +26,8 @@ type alias Model =
 
 
 type Modal
-    = EditFile Data.File.File
-    | NoModal
+    = InitModal
+    | FileModal Screen.App.FileModal.Model
 
 
 init :
@@ -46,7 +38,7 @@ init ( dirs, files ) session =
     ( { session = session
       , dirs = dirs
       , files = files
-      , modal = NoModal
+      , modal = InitModal
       }
     , Cmd.none
     )
@@ -61,11 +53,8 @@ type Msg
     | ClickUploadFile
     | ClickDir Data.Dir.Dir
     | ClickFile Data.File.File
-    | ClickCopyFileUrl
-    | ClickDownloadFile
-    | ClickMoveFile
-    | ClickDeleteFile
     | ClickCloseModal
+    | FileModalMsg Screen.App.FileModal.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -81,32 +70,29 @@ update msg model =
             ( model, Cmd.none )
 
         ClickFile file ->
-            ( { model | modal = EditFile file }, toggleModal () )
-
-        ClickCopyFileUrl ->
-            case model.modal of
-                EditFile file ->
-                    ( model, copyToClipboard file.url )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        ClickDownloadFile ->
-            case model.modal of
-                EditFile file ->
-                    ( model, File.Download.url file.url )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        ClickMoveFile ->
-            ( model, Cmd.none )
-
-        ClickDeleteFile ->
-            ( model, Cmd.none )
+            routeFileModal model
+                (Screen.App.FileModal.init model.session model.dirs file)
 
         ClickCloseModal ->
-            ( model, toggleModal () )
+            ( model, Ports.toggleModal () )
+
+        FileModalMsg msg_ ->
+            case model.modal of
+                FileModal model_ ->
+                    routeFileModal model
+                        (Screen.App.FileModal.update msg_ model_)
+
+                _ ->
+                    ( model, Cmd.none )
+
+
+routeFileModal :
+    Model
+    -> ( Screen.App.FileModal.Model, Cmd Screen.App.FileModal.Msg )
+    -> ( Model, Cmd Msg )
+routeFileModal model =
+    Tuple.mapBoth (\model_ -> { model | modal = FileModal model_ })
+        (Cmd.map FileModalMsg)
 
 
 
@@ -235,34 +221,8 @@ viewModal model =
 viewModalContent : Model -> List (Html.Html Msg)
 viewModalContent model =
     case model.modal of
-        EditFile file ->
-            [ Html.div [ Html.Attributes.id "modal-item-wrap" ]
-                [ Html.div [ Html.Attributes.class "item" ]
-                    [ Html.div [ Html.Attributes.class "file-name" ]
-                        [ Html.text <|
-                            String.join "/"
-                                [ Data.Dir.dirPath file.dirId model.dirs
-                                , file.name
-                                ]
-                        ]
-                    , Html.div [ Html.Attributes.class "file" ]
-                        [ Html.img [ Html.Attributes.src file.previewUrl ] [] ]
-                    ]
-                , Html.div [ Html.Attributes.id "modal-item-actions" ]
-                    [ Html.button [ Html.Events.onClick ClickCopyFileUrl ]
-                        [ Html.text "Copy URL" ]
-                    , Html.button [ Html.Events.onClick ClickDownloadFile ]
-                        [ Html.text "Download" ]
-                    , Html.button [ Html.Events.onClick ClickMoveFile ]
-                        [ Html.text "Move" ]
-                    , Html.button
-                        [ Html.Attributes.id "modal-item-delete-action"
-                        , Html.Events.onClick ClickDeleteFile
-                        ]
-                        [ Html.text "Delete" ]
-                    ]
-                ]
-            ]
-
-        NoModal ->
+        InitModal ->
             []
+
+        FileModal model_ ->
+            [ Html.map FileModalMsg <| Screen.App.FileModal.view model_ ]
