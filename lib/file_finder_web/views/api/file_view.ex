@@ -26,7 +26,6 @@ defmodule FileFinderWeb.Api.FileView do
       url: file.url,
       preview_url: file.preview_url,
       mime_type: file.mime_type,
-      bytes: file.bytes,
       dir_id: file.dir_id
     }
   end

@@ -6,7 +6,6 @@ defmodule FileFinder.Files.File do
 
   schema "files" do
     field :alt, :string
-    field :bytes, :integer
     field :mime_type, :string
     field :preview_url, :string
     field :shopify_id, :string
@@ -31,7 +30,6 @@ defmodule FileFinder.Files.File do
         :alt,
         :preview_url,
         :mime_type,
-        :bytes,
         :shopify_timestamp,
         :dir_id,
         :shop_id
@@ -44,7 +42,6 @@ defmodule FileFinder.Files.File do
       :type,
       :preview_url,
       :mime_type,
-      :bytes,
       :shopify_timestamp,
       :shop_id
     ])
@@ -224,7 +221,6 @@ defmodule FileFinder.Files.File do
           case node["__typename"] do
             "MediaImage" ->
               %{
-                bytes: node["originalSource"]["fileSize"],
                 mime_type: node["mimeType"],
                 type: :image,
                 url: node["image"]["url"]
@@ -232,7 +228,6 @@ defmodule FileFinder.Files.File do
 
             "Video" ->
               %{
-                bytes: node["originalSource"]["fileSize"],
                 mime_type: node["originalSource"]["mimeType"],
                 type: :video,
                 url: node["originalSource"]["url"]
@@ -240,7 +235,6 @@ defmodule FileFinder.Files.File do
 
             _ ->
               %{
-                bytes: node["originalFileSize"],
                 mime_type: node["mimeType"],
                 type: :file,
                 url: node["url"]
@@ -250,7 +244,6 @@ defmodule FileFinder.Files.File do
         {:ok,
          changeset(file, %{
            "alt" => node["alt"],
-           "bytes" => metadata.bytes,
            "mime_type" => metadata.mime_type,
            "preview_url" => node["preview"]["image"]["url"],
            "shop_id" => shop.id,

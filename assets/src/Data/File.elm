@@ -1,6 +1,14 @@
-module Data.File exposing (Data, File, getDirShopFiles, getRootShopFiles)
+module Data.File exposing
+    ( Data
+    , File
+    , getDirShopFiles
+    , getFileBytes
+    , getRootShopFiles
+    )
 
 import Api
+import Bytes
+import Bytes.Decode
 import Data.Dir
 import Dict
 import Http
@@ -18,7 +26,6 @@ type alias File =
     , url : String
     , previewUrl : String
     , mimeType : String
-    , bytes : Int
     , dirId : Data.Dir.Id
     }
 
@@ -33,14 +40,13 @@ type alias Data =
 
 decoder : Json.Decode.Decoder File
 decoder =
-    Json.Decode.map8 File
+    Json.Decode.map7 File
         (Json.Decode.field "id" Json.Decode.int)
         (Json.Decode.field "type" typeDecoder)
         (Json.Decode.field "name" Json.Decode.string)
         (Json.Decode.field "url" Json.Decode.string)
         (Json.Decode.field "preview_url" Json.Decode.string)
         (Json.Decode.field "mime_type" Json.Decode.string)
-        (Json.Decode.field "bytes" Json.Decode.int)
         (Json.Decode.field "dir_id" Data.Dir.optionalIdDecoder)
 
 
@@ -128,3 +134,46 @@ getDirShopFiles id { token, tracker, tagger } =
         , timeout = Nothing
         , tracker = tracker
         }
+
+
+getFileBytes : File -> (Result Http.Error Bytes.Bytes -> msg) -> Cmd msg
+getFileBytes { url } tagger =
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = getFileBytesResponse tagger
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+getFileBytesResponse : (Result Http.Error Bytes.Bytes -> msg) -> Http.Expect msg
+getFileBytesResponse tagger =
+    Http.expectBytesResponse tagger <|
+        \response ->
+            case response of
+                Http.BadUrl_ url_ ->
+                    Err <| Http.BadUrl url_
+
+                Http.Timeout_ ->
+                    Err <| Http.Timeout
+
+                Http.NetworkError_ ->
+                    Err <| Http.NetworkError
+
+                Http.BadStatus_ metadata _ ->
+                    Err <| Http.BadStatus metadata.statusCode
+
+                Http.GoodStatus_ _ body ->
+                    let
+                        width =
+                            Bytes.width body
+                    in
+                    case Bytes.Decode.decode (Bytes.Decode.bytes width) body of
+                        Just bytes_ ->
+                            Ok bytes_
+
+                        Nothing ->
+                            Err <| Http.BadBody "unexpected bytes"

@@ -1,11 +1,13 @@
 module Screen.App.FileModal exposing (Model, Msg, init, update, view)
 
+import Bytes
 import Data.Dir
 import Data.File
 import File.Download
 import Html
 import Html.Attributes
 import Html.Events
+import Http
 import Ports
 import Session
 
@@ -18,13 +20,14 @@ type alias Model =
     { session : Session.Session
     , dirs : Data.Dir.Data
     , file : Data.File.File
-    , panel : Panel
+    , state : State
     }
 
 
-type Panel
-    = InitPanel
-    | ConfirmPanel
+type State
+    = Init
+    | ConfirmDelete
+    | Error Http.Error
 
 
 init : Session.Session -> Data.Dir.Data -> Data.File.File -> ( Model, Cmd Msg )
@@ -32,7 +35,7 @@ init session dirs file =
     ( { session = session
       , dirs = dirs
       , file = file
-      , panel = InitPanel
+      , state = Init
       }
     , Ports.toggleModal ()
     )
@@ -49,6 +52,7 @@ type Msg
     | ClickDelete
     | ClickConfirm
     | ClickCancel
+    | GotFileBytes (Result Http.Error Bytes.Bytes)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -58,29 +62,41 @@ update msg model =
             ( model, Ports.copyToClipboard model.file.url )
 
         ClickDownload ->
-            ( model, File.Download.url model.file.url )
+            ( model, Data.File.getFileBytes model.file GotFileBytes )
 
         ClickMove ->
             ( model, Cmd.none )
 
         ClickDelete ->
-            ( { model | panel = ConfirmPanel }, Cmd.none )
+            ( { model | state = ConfirmDelete }, Cmd.none )
 
         ClickConfirm ->
-            case model.panel of
-                ConfirmPanel ->
+            case model.state of
+                ConfirmDelete ->
                     ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         ClickCancel ->
-            case model.panel of
-                ConfirmPanel ->
+            case model.state of
+                ConfirmDelete ->
                     ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
+
+        GotFileBytes result ->
+            case result of
+                Ok bytes ->
+                    ( model
+                    , File.Download.bytes model.file.name
+                        model.file.mimeType
+                        bytes
+                    )
+
+                Err err ->
+                    ( { model | state = Error err }, Cmd.none )
 
 
 
@@ -89,16 +105,39 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    case model.panel of
-        InitPanel ->
-            viewInitPanel model
+    case model.state of
+        Init ->
+            viewInit model
 
-        ConfirmPanel ->
+        ConfirmDelete ->
+            -- TODO: finish confirm delete view
             Html.div [] []
 
+        Error err ->
+            -- TODO: finish error view
+            let
+                message =
+                    case err of
+                        Http.BadUrl url ->
+                            url ++ " is invalid"
 
-viewInitPanel : Model -> Html.Html Msg
-viewInitPanel model =
+                        Http.Timeout ->
+                            "Hit network timeout"
+
+                        Http.NetworkError ->
+                            "Hit network error"
+
+                        Http.BadStatus code ->
+                            String.fromInt code ++ " status code"
+
+                        Http.BadBody message_ ->
+                            message_
+            in
+            Html.pre [] [ Html.text message ]
+
+
+viewInit : Model -> Html.Html Msg
+viewInit model =
     Html.div [ Html.Attributes.id "modal-item-wrap" ]
         [ Html.div [ Html.Attributes.class "item" ]
             [ Html.div [ Html.Attributes.class "file-name" ]
