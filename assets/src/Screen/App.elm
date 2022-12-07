@@ -208,14 +208,13 @@ viewModal : Model -> Html.Html Msg
 viewModal model =
     Html.node "dialog"
         [ Html.Attributes.id "modal" ]
-        [ Html.div
+        (Html.div
             [ Html.Attributes.id "modal-close"
             , Html.Events.onClick ClickCloseModal
             ]
             [ Icons.close [ "close-icon" ] ]
-        , Html.div [ Html.Attributes.id "modal-content" ]
-            (viewModalContent model)
-        ]
+            :: viewModalContent model
+        )
 
 
 viewModalContent : Model -> List (Html.Html Msg)

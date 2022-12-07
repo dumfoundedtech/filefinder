@@ -1,3 +1,5 @@
+/* BASE */
+
 :root {
   --dark-gray: #0f172a;
   --blue: #15b0f0;
@@ -137,7 +139,8 @@ button {
 }
 
 #app div.item div.dir-name,
-#app div.item div.file-name {
+#app div.item div.file-name,
+#app #modal-confirm #modal-confirm-message {
   color: var(--dark-gray);
   font-family: var(--paragraph-font);
   overflow: hidden;
@@ -224,15 +227,19 @@ button {
   width: 1.5rem;
 }
 
+/* MODALS */
+
 #app #modal {
   border-radius: 0.5rem;
+  border: 2px solid var(--blue);
   height: 80%;
+  padding: 0;
   position: relative;
   width: 60%;
-  padding: 0;
 }
 
 #app #modal div#modal-close {
+  fill: var(--blue);
   padding: 0.5rem;
   position: absolute;
   right: 0;
@@ -251,7 +258,7 @@ button {
 
 #app #modal::backdrop {
   backdrop-filter: blur(2px);
-  background-color: rgba(24, 176, 240, 0.2);
+  background-color: rgba(197, 235, 251, 0.2);
 }
 
 #app #modal-content {
@@ -259,15 +266,29 @@ button {
   width: 100%;
 }
 
+#app #modal-banner {
+  background: var(--transparent-blue);
+  color: var(--blue);
+  font-family: var(--paragraph-font);
+  font-size: 0.875rem;
+  line-height: 3em;
+  min-height: 3em;
+  text-align: center;
+}
+
 #app #modal-item-wrap {
   align-items: center;
   display: flex;
   flex-direction: column;
-  height: 100%;
   justify-content: center;
 }
 
-#app #modal-item-wrap div.file-name {
+#app #modal-item-wrap div.item {
+  height: 100%;
+}
+
+#app #modal-item-wrap div.file-name,
+#app #modal-confirm div#modal-confirm-message {
   font-size: 1.125rem;
   line-height: 1.75rem;
   max-width: 100%;
@@ -286,7 +307,8 @@ button {
   width: 100%;
 }
 
-#app #modal-item-actions button {
+#app #modal-item-actions button,
+#app #modal-confirm button {
   background: var(--white);
   border: 2px solid var(--blue);
   color: var(--blue);
@@ -297,23 +319,40 @@ button {
   width: 7rem;
 }
 
-#app #modal-item-actions button:hover {
+#app #modal-item-actions button:hover,
+#app #modal-confirm button:hover {
   background: var(--blue);
   color: var(--white);
 }
 
-#app #modal-item-actions button:last-of-type {
+#app #modal-item-actions button:last-of-type,
+#app #modal-confirm button:last-of-type {
   margin-right: 0;
 }
 
-#app #modal-item-actions button#modal-item-delete-action {
+#app #modal-item-actions button#modal-item-delete-action,
+#app #modal-confirm button#modal-confirm-delete-action {
   border-color: var(--red);
   color: var(--red);
 }
 
-#app #modal-item-actions button#modal-item-delete-action:hover {
+#app #modal-item-actions button#modal-item-delete-action:hover,
+#app #modal-confirm button#modal-confirm-delete-action:hover {
   background: var(--red);
   color: var(--white);
+}
+
+#app #modal-confirm {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+}
+
+#app #modal-confirm #modal-confirm-actions {
+  margin-top: 2rem;
 }
 
 /* ANIMATIONS */

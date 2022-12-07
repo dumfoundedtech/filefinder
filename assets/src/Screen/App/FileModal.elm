@@ -21,6 +21,7 @@ type alias Model =
     , dirs : Data.Dir.Data
     , file : Data.File.File
     , state : State
+    , message : String
     }
 
 
@@ -36,6 +37,7 @@ init session dirs file =
       , dirs = dirs
       , file = file
       , state = Init
+      , message = ""
       }
     , Ports.toggleModal ()
     )
@@ -59,12 +61,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickCopyUrl ->
-            ( model, Ports.copyToClipboard model.file.url )
+            ( { model | message = "Url copied to clipboard!" }
+            , Ports.copyToClipboard model.file.url
+            )
 
         ClickDownload ->
             ( model, Data.File.getFileBytes model.file GotFileBytes )
 
         ClickMove ->
+            -- TODO: move
             ( model, Cmd.none )
 
         ClickDelete ->
@@ -81,7 +86,8 @@ update msg model =
         ClickCancel ->
             case model.state of
                 ConfirmDelete ->
-                    ( model, Cmd.none )
+                    -- TODO: delete
+                    ( { model | state = Init }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -111,7 +117,24 @@ view model =
 
         ConfirmDelete ->
             -- TODO: finish confirm delete view
-            Html.div [] []
+            Html.div [ Html.Attributes.id "modal-content" ]
+                [ Html.div [ Html.Attributes.id "modal-banner" ] []
+                , Html.div
+                    [ Html.Attributes.id "modal-confirm" ]
+                    [ Html.div [ Html.Attributes.id "modal-confirm-message" ]
+                        [ Html.text
+                            "Are you sure you want to delete this file?"
+                        ]
+                    , Html.div [ Html.Attributes.id "modal-confirm-actions" ]
+                        [ Html.button [ Html.Events.onClick ClickCancel ]
+                            [ Html.text "Cancel" ]
+                        , Html.button
+                            [ Html.Attributes.id "modal-confirm-delete-action"
+                            ]
+                            [ Html.text "Delete" ]
+                        ]
+                    ]
+                ]
 
         Error err ->
             -- TODO: finish error view
@@ -138,29 +161,33 @@ view model =
 
 viewInit : Model -> Html.Html Msg
 viewInit model =
-    Html.div [ Html.Attributes.id "modal-item-wrap" ]
-        [ Html.div [ Html.Attributes.class "item" ]
-            [ Html.div [ Html.Attributes.class "file-name" ]
-                [ Html.text <|
-                    String.join "/"
-                        [ Data.Dir.dirPath model.file.dirId model.dirs
-                        , model.file.name
-                        ]
+    Html.div [ Html.Attributes.id "modal-content" ]
+        [ Html.div [ Html.Attributes.id "modal-banner" ]
+            [ Html.text model.message ]
+        , Html.div [ Html.Attributes.id "modal-item-wrap" ]
+            [ Html.div [ Html.Attributes.class "item" ]
+                [ Html.div [ Html.Attributes.class "file" ]
+                    [ Html.img [ Html.Attributes.src model.file.previewUrl ] [] ]
+                , Html.div [ Html.Attributes.class "file-name" ]
+                    [ Html.text <|
+                        String.join "/"
+                            [ Data.Dir.dirPath model.file.dirId model.dirs
+                            , model.file.name
+                            ]
+                    ]
                 ]
-            , Html.div [ Html.Attributes.class "file" ]
-                [ Html.img [ Html.Attributes.src model.file.previewUrl ] [] ]
-            ]
-        , Html.div [ Html.Attributes.id "modal-item-actions" ]
-            [ Html.button [ Html.Events.onClick ClickCopyUrl ]
-                [ Html.text "Copy URL" ]
-            , Html.button [ Html.Events.onClick ClickDownload ]
-                [ Html.text "Download" ]
-            , Html.button [ Html.Events.onClick ClickMove ]
-                [ Html.text "Move" ]
-            , Html.button
-                [ Html.Attributes.id "modal-item-delete-action"
-                , Html.Events.onClick ClickDelete
+            , Html.div [ Html.Attributes.id "modal-item-actions" ]
+                [ Html.button [ Html.Events.onClick ClickCopyUrl ]
+                    [ Html.text "Copy URL" ]
+                , Html.button [ Html.Events.onClick ClickDownload ]
+                    [ Html.text "Download" ]
+                , Html.button [ Html.Events.onClick ClickMove ]
+                    [ Html.text "Move" ]
+                , Html.button
+                    [ Html.Attributes.id "modal-item-delete-action"
+                    , Html.Events.onClick ClickDelete
+                    ]
+                    [ Html.text "Delete" ]
                 ]
-                [ Html.text "Delete" ]
             ]
         ]
