@@ -29,9 +29,9 @@ type alias Model =
 
 type State
     = Loading Int
-    | LoadedDirs Data.Dir.Data Int
-    | LoadedFiles Data.File.Data Int
-    | Loaded ( Data.Dir.Data, Data.File.Data ) Int
+    | LoadedDirs Int
+    | LoadedFiles Int
+    | Loaded Int
 
 
 init : Session.Session -> ( Model, Cmd Msg )
@@ -77,14 +77,24 @@ update msg model =
         GotDirs result ->
             case result of
                 Ok dirs ->
+                    let
+                        session =
+                            Session.loadDirs dirs model.session
+                    in
                     case model.state of
                         Loading time ->
                             updateModel
-                                { model | state = LoadedDirs dirs time }
+                                { model
+                                    | session = session
+                                    , state = LoadedDirs time
+                                }
 
-                        LoadedFiles files time ->
+                        LoadedFiles time ->
                             updateModel
-                                { model | state = Loaded ( dirs, files ) time }
+                                { model
+                                    | session = session
+                                    , state = Loaded time
+                                }
 
                         _ ->
                             updateModel model
@@ -98,14 +108,24 @@ update msg model =
         GotFiles result ->
             case result of
                 Ok files ->
+                    let
+                        session =
+                            Session.loadFiles files model.session
+                    in
                     case model.state of
                         Loading time ->
                             updateModel
-                                { model | state = LoadedFiles files time }
+                                { model
+                                    | session = session
+                                    , state = LoadedFiles time
+                                }
 
-                        LoadedDirs dirs time ->
+                        LoadedDirs time ->
                             updateModel
-                                { model | state = Loaded ( dirs, files ) time }
+                                { model
+                                    | session = session
+                                    , state = Loaded time
+                                }
 
                         _ ->
                             updateModel model
@@ -121,24 +141,24 @@ update msg model =
                 Loading time ->
                     updateModel { model | state = Loading <| time + delta }
 
-                LoadedDirs data time ->
+                LoadedDirs time ->
                     updateModel
-                        { model | state = LoadedDirs data <| time + delta }
+                        { model | state = LoadedDirs <| time + delta }
 
-                LoadedFiles data time ->
+                LoadedFiles time ->
                     updateModel
-                        { model | state = LoadedFiles data <| time + delta }
+                        { model | state = LoadedFiles <| time + delta }
 
-                Loaded data time ->
+                Loaded time ->
                     if time > animateInDuration + animateOutDuration then
                         { model = model
                         , cmd = Cmd.none
-                        , nextScreen = Session.AppScreen data
+                        , nextScreen = Session.AppScreen
                         }
 
                     else
                         updateModel
-                            { model | state = Loaded data <| time + delta }
+                            { model | state = Loaded <| time + delta }
 
 
 updateModel : Model -> Update
@@ -177,13 +197,13 @@ view model =
                 Loading time ->
                     animateIn time
 
-                LoadedDirs _ time ->
+                LoadedDirs time ->
                     animateIn time
 
-                LoadedFiles _ time ->
+                LoadedFiles time ->
                     animateIn time
 
-                Loaded _ time ->
+                Loaded time ->
                     if time > animateInDuration then
                         "slide-out"
 

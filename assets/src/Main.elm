@@ -71,9 +71,9 @@ update msg model =
                             , Cmd.map LoadingMsg update_.cmd
                             )
 
-                        Session.AppScreen data ->
+                        Session.AppScreen ->
                             Tuple.mapBoth App (Cmd.map AppMsg) <|
-                                Screen.App.init data update_.model.session
+                                Screen.App.init update_.model.session
 
                         Session.ErrorScreen err ->
                             Tuple.mapBoth Error (Cmd.map never) <|

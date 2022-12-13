@@ -1,9 +1,12 @@
 module Data.File exposing
     ( Data
     , File
+    , delete
     , getDirShopFiles
     , getFileBytes
     , getRootShopFiles
+    , initData
+    , update
     )
 
 import Api
@@ -13,6 +16,7 @@ import Data.Dir
 import Dict
 import Http
 import Json.Decode
+import Json.Encode
 
 
 
@@ -32,6 +36,11 @@ type alias File =
 
 type alias Data =
     Dict.Dict Int File
+
+
+initData : Data
+initData =
+    Dict.empty
 
 
 
@@ -177,3 +186,46 @@ getFileBytesResponse tagger =
 
                         Nothing ->
                             Err <| Http.BadBody "unexpected bytes"
+
+
+
+-- UPDATE
+
+
+update : String -> File -> (Result Http.Error File -> msg) -> Cmd msg
+update token file tagger =
+    Api.request token
+        { method = "PATCH"
+        , headers = []
+        , url = "/files/" ++ String.fromInt file.id
+        , body =
+            Http.jsonBody <|
+                Json.Encode.object
+                    [ ( "dir_id"
+                      , Json.Encode.int <|
+                            Maybe.withDefault 0 <|
+                                String.toInt <|
+                                    Data.Dir.idToString file.dirId
+                      )
+                    ]
+        , expect = Http.expectJson tagger decoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+
+-- DELETE
+
+
+delete : String -> File -> (Result Http.Error File -> msg) -> Cmd msg
+delete token file tagger =
+    Api.request token
+        { method = "DELETE"
+        , headers = []
+        , url = "/files/" ++ String.fromInt file.id
+        , body = Http.emptyBody
+        , expect = Http.expectJson tagger decoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }

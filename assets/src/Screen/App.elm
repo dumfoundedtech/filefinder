@@ -3,7 +3,6 @@ module Screen.App exposing (Model, Msg, init, update, view)
 import Data.Dir
 import Data.File
 import Dict
-import File.Download
 import Html
 import Html.Attributes
 import Html.Events
@@ -19,8 +18,6 @@ import Session
 
 type alias Model =
     { session : Session.Session
-    , dirs : Data.Dir.Data
-    , files : Data.File.Data
     , modal : Modal
     }
 
@@ -30,14 +27,9 @@ type Modal
     | FileModal Screen.App.FileModal.Model
 
 
-init :
-    ( Data.Dir.Data, Data.File.Data )
-    -> Session.Session
-    -> ( Model, Cmd Msg )
-init ( dirs, files ) session =
+init : Session.Session -> ( Model, Cmd Msg )
+init session =
     ( { session = session
-      , dirs = dirs
-      , files = files
       , modal = InitModal
       }
     , Cmd.none
@@ -71,7 +63,7 @@ update msg model =
 
         ClickFile file ->
             routeFileModal model
-                (Screen.App.FileModal.init model.session model.dirs file)
+                (Screen.App.FileModal.init model.session file)
 
         ClickCloseModal ->
             ( model, Ports.toggleModal () )
@@ -121,10 +113,10 @@ viewMain : Model -> Html.Html Msg
 viewMain model =
     let
         dirs =
-            List.map Tuple.second <| Dict.toList model.dirs
+            List.map Tuple.second <| Dict.toList model.session.dirs
 
         files =
-            List.map Tuple.second <| Dict.toList model.files
+            List.map Tuple.second <| Dict.toList model.session.files
     in
     Html.main_ [ Html.Attributes.id "main" ]
         (viewInfoBar model
@@ -139,7 +131,7 @@ viewInfoBar : Model -> Html.Html msg
 viewInfoBar model =
     Html.div [ Html.Attributes.id "info-bar" ]
         [ Html.text <|
-            Data.Dir.dirPath model.session.dirId model.dirs
+            Data.Dir.dirPath model.session.dirId model.session.dirs
                 ++ " directory"
         ]
 

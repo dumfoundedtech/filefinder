@@ -5,7 +5,7 @@ defmodule FileFinderWeb.Api.DirView do
     render_many(shop_dirs, FileFinderWeb.Api.DirView, "dir.json")
   end
 
-  def render("dir.json", %{api_dir: dir}) do
+  def render("dir.json", %{dir: dir}) do
     %{
       id: dir.id,
       name: dir.name,

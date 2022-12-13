@@ -4,6 +4,7 @@
   --dark-gray: #0f172a;
   --blue: #15b0f0;
   --red: #d65c5c;
+  --green: #5cd685;
   --white: #ffffff;
   --transparent-blue: #d7f0fc;
   --heading-font: "Permanent Marker", cursive;
@@ -140,7 +141,8 @@ button {
 
 #app div.item div.dir-name,
 #app div.item div.file-name,
-#app #modal-confirm #modal-confirm-message {
+#app #modal-confirm #modal-confirm-message,
+#app #modal-move-item #modal-move-item-select {
   color: var(--dark-gray);
   font-family: var(--paragraph-font);
   overflow: hidden;
@@ -288,7 +290,8 @@ button {
 }
 
 #app #modal-item-wrap div.file-name,
-#app #modal-confirm div#modal-confirm-message {
+#app #modal-confirm div#modal-confirm-message,
+#app #modal-move-item div#modal-move-item-select {
   font-size: 1.125rem;
   line-height: 1.75rem;
   max-width: 100%;
@@ -308,7 +311,8 @@ button {
 }
 
 #app #modal-item-actions button,
-#app #modal-confirm button {
+#app #modal-confirm button,
+#app #modal-move-item button {
   background: var(--white);
   border: 2px solid var(--blue);
   color: var(--blue);
@@ -320,13 +324,15 @@ button {
 }
 
 #app #modal-item-actions button:hover,
-#app #modal-confirm button:hover {
+#app #modal-confirm button:hover,
+#app #modal-move-item button:hover {
   background: var(--blue);
   color: var(--white);
 }
 
 #app #modal-item-actions button:last-of-type,
-#app #modal-confirm button:last-of-type {
+#app #modal-confirm button:last-of-type,
+#app #modal-move-item button:last-of-type {
   margin-right: 0;
 }
 
@@ -342,7 +348,18 @@ button {
   color: var(--white);
 }
 
-#app #modal-confirm {
+#app #modal-move-item button#modal-move-confirm-action {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+#app #modal-move-item button#modal-move-confirm-action:hover {
+  background: var(--green);
+  color: var(--white);
+}
+
+#app #modal-confirm,
+#app #modal-move-item {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -351,8 +368,25 @@ button {
   width: 100%;
 }
 
-#app #modal-confirm #modal-confirm-actions {
+#app #modal-confirm #modal-confirm-actions,
+#app #modal-move-item #modal-move-item-actions {
   margin-top: 2rem;
+}
+
+#app div#modal-move-item-select {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+#app div#modal-move-item-select select {
+  border-radius: 0.5rem;
+  border: 2px solid var(--dark-gray);
+  font-family: inherit;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  line-height: 1.25rem;
+  padding: 1rem;
 }
 
 /* ANIMATIONS */

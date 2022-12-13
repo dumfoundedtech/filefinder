@@ -8,6 +8,7 @@ module Data.Dir exposing
     , idDecoder
     , idFromInt
     , idToString
+    , initData
     , initId
     , optionalIdDecoder
     )
@@ -31,6 +32,11 @@ type alias Dir =
 
 type alias Data =
     Dict.Dict String Dir
+
+
+initData : Data
+initData =
+    Dict.empty
 
 
 
@@ -172,7 +178,7 @@ dirPathHelp id data path =
         Sub id_ ->
             case Dict.get (String.fromInt id_) data of
                 Just dir ->
-                    dirPathHelp dir.id data <|
+                    dirPathHelp dir.dirId data <|
                         String.join "/" [ dir.name, path ]
 
                 Nothing ->

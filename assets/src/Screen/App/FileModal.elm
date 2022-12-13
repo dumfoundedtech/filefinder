@@ -3,11 +3,13 @@ module Screen.App.FileModal exposing (Model, Msg, init, update, view)
 import Bytes
 import Data.Dir
 import Data.File
+import Dict
 import File.Download
 import Html
 import Html.Attributes
 import Html.Events
 import Http
+import Json.Decode
 import Ports
 import Session
 
@@ -18,7 +20,6 @@ import Session
 
 type alias Model =
     { session : Session.Session
-    , dirs : Data.Dir.Data
     , file : Data.File.File
     , state : State
     , message : String
@@ -27,14 +28,14 @@ type alias Model =
 
 type State
     = Init
+    | MoveFile Data.Dir.Id
     | ConfirmDelete
     | Error Http.Error
 
 
-init : Session.Session -> Data.Dir.Data -> Data.File.File -> ( Model, Cmd Msg )
-init session dirs file =
+init : Session.Session -> Data.File.File -> ( Model, Cmd Msg )
+init session file =
     ( { session = session
-      , dirs = dirs
       , file = file
       , state = Init
       , message = ""
@@ -51,14 +52,17 @@ type Msg
     = ClickCopyUrl
     | ClickDownload
     | ClickMove
+    | ClickOk
+    | ChangeDir Data.Dir.Id
     | ClickDelete
     | ClickConfirm
     | ClickCancel
     | GotFileBytes (Result Http.Error Bytes.Bytes)
+    | GotUpdate (Result Http.Error Data.File.File)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ file } as model) =
     case msg of
         ClickCopyUrl ->
             ( { model | message = "Url copied to clipboard!" }
@@ -66,19 +70,44 @@ update msg model =
             )
 
         ClickDownload ->
-            ( model, Data.File.getFileBytes model.file GotFileBytes )
+            ( { model | message = "File download initiated!" }
+            , Data.File.getFileBytes model.file GotFileBytes
+            )
 
         ClickMove ->
-            -- TODO: move
-            ( model, Cmd.none )
+            ( { model | message = "", state = MoveFile Data.Dir.initId }, Cmd.none )
+
+        ChangeDir dirId ->
+            case model.state of
+                MoveFile _ ->
+                    ( { model | state = MoveFile dirId }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ClickOk ->
+            case model.state of
+                MoveFile _ ->
+                    ( { model | state = Init }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ClickDelete ->
-            ( { model | state = ConfirmDelete }, Cmd.none )
+            ( { model | message = "", state = ConfirmDelete }, Cmd.none )
 
         ClickConfirm ->
             case model.state of
                 ConfirmDelete ->
+                    -- TODO: delete
                     ( model, Cmd.none )
+
+                MoveFile dirId ->
+                    ( model
+                    , Data.File.update model.session.token
+                        { file | dirId = dirId }
+                        GotUpdate
+                    )
 
                 _ ->
                     ( model, Cmd.none )
@@ -86,7 +115,9 @@ update msg model =
         ClickCancel ->
             case model.state of
                 ConfirmDelete ->
-                    -- TODO: delete
+                    ( { model | state = Init }, Cmd.none )
+
+                MoveFile _ ->
                     ( { model | state = Init }, Cmd.none )
 
                 _ ->
@@ -104,6 +135,19 @@ update msg model =
                 Err err ->
                     ( { model | state = Error err }, Cmd.none )
 
+        GotUpdate result ->
+            case result of
+                Ok file_ ->
+                    ( { model
+                        | session = Session.updateFile file_ model.session
+                        , file = file_
+                      }
+                    , Cmd.none
+                    )
+
+                Err err ->
+                    ( { model | state = Error err }, Cmd.none )
+
 
 
 -- VIEW
@@ -115,8 +159,10 @@ view model =
         Init ->
             viewInit model
 
+        MoveFile _ ->
+            viewMoveFile model
+
         ConfirmDelete ->
-            -- TODO: finish confirm delete view
             Html.div [ Html.Attributes.id "modal-content" ]
                 [ Html.div [ Html.Attributes.id "modal-banner" ] []
                 , Html.div
@@ -171,7 +217,8 @@ viewInit model =
                 , Html.div [ Html.Attributes.class "file-name" ]
                     [ Html.text <|
                         String.join "/"
-                            [ Data.Dir.dirPath model.file.dirId model.dirs
+                            [ Data.Dir.dirPath model.file.dirId
+                                model.session.dirs
                             , model.file.name
                             ]
                     ]
@@ -191,3 +238,75 @@ viewInit model =
                 ]
             ]
         ]
+
+
+viewMoveFile : Model -> Html.Html Msg
+viewMoveFile model =
+    if Dict.isEmpty model.session.dirs then
+        Html.div
+            [ Html.Attributes.id "modal-content" ]
+            [ Html.div [ Html.Attributes.id "modal-banner" ] []
+            , Html.div
+                [ Html.Attributes.id "modal-move-item" ]
+                [ Html.div [ Html.Attributes.id "modal-move-item-select" ]
+                    [ Html.text "Please first create some folders!"
+                    ]
+                , Html.div [ Html.Attributes.id "modal-move-item-actions" ]
+                    [ Html.button [ Html.Events.onClick ClickOk ]
+                        [ Html.text "Ok" ]
+                    ]
+                ]
+            ]
+
+    else
+        Html.div
+            [ Html.Attributes.id "modal-content" ]
+            [ Html.div [ Html.Attributes.id "modal-banner" ] []
+            , Html.div
+                [ Html.Attributes.id "modal-move-item" ]
+                [ Html.div [ Html.Attributes.id "modal-move-item-select" ]
+                    [ Html.text "Select a destination for this file"
+                    , Html.select
+                        [ Html.Events.on "change" changeDecoder ]
+                        (Html.option [ Html.Attributes.value "root" ]
+                            [ Html.text "/root" ]
+                            :: (List.map (dirSelect model.session.dirs) <|
+                                    Dict.toList model.session.dirs
+                               )
+                        )
+                    ]
+                , Html.div [ Html.Attributes.id "modal-move-item-actions" ]
+                    [ Html.button [ Html.Events.onClick ClickCancel ]
+                        [ Html.text "Cancel" ]
+                    , Html.button
+                        [ Html.Attributes.id "modal-move-confirm-action"
+                        , Html.Events.onClick ClickConfirm
+                        ]
+                        [ Html.text "Update" ]
+                    ]
+                ]
+            ]
+
+
+changeDecoder : Json.Decode.Decoder Msg
+changeDecoder =
+    Json.Decode.andThen
+        (\value ->
+            case value of
+                "root" ->
+                    Json.Decode.succeed <| ChangeDir Data.Dir.initId
+
+                _ ->
+                    Json.Decode.succeed <|
+                        ChangeDir <|
+                            Maybe.withDefault Data.Dir.initId <|
+                                Maybe.andThen Data.Dir.idFromInt <|
+                                    String.toInt value
+        )
+        Html.Events.targetValue
+
+
+dirSelect : Data.Dir.Data -> ( String, Data.Dir.Dir ) -> Html.Html Msg
+dirSelect data ( id, dir ) =
+    Html.option [ Html.Attributes.value id ]
+        [ Html.text <| Data.Dir.dirPath dir.id data ]
