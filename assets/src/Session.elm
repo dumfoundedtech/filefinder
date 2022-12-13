@@ -4,6 +4,7 @@ module Session exposing
     , decoder
     , loadDirs
     , loadFiles
+    , removeFile
     , updateDir
     , updateFile
     )
@@ -72,6 +73,15 @@ updateFile file session =
     let
         files =
             Dict.update file.id (Maybe.andThen (\_ -> Just file)) session.files
+    in
+    { session | files = files }
+
+
+removeFile : Data.File.File -> Session -> Session
+removeFile file session =
+    let
+        files =
+            Dict.remove file.id session.files
     in
     { session | files = files }
 

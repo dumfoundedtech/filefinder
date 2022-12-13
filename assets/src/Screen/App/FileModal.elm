@@ -59,6 +59,7 @@ type Msg
     | ClickCancel
     | GotFileBytes (Result Http.Error Bytes.Bytes)
     | GotUpdate (Result Http.Error Data.File.File)
+    | GotDelete (Result Http.Error Data.File.File)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -75,7 +76,9 @@ update msg ({ file } as model) =
             )
 
         ClickMove ->
-            ( { model | message = "", state = MoveFile Data.Dir.initId }, Cmd.none )
+            ( { model | message = "", state = MoveFile Data.Dir.initId }
+            , Cmd.none
+            )
 
         ChangeDir dirId ->
             case model.state of
@@ -99,8 +102,9 @@ update msg ({ file } as model) =
         ClickConfirm ->
             case model.state of
                 ConfirmDelete ->
-                    -- TODO: delete
-                    ( model, Cmd.none )
+                    ( model
+                    , Data.File.delete model.session.token file GotDelete
+                    )
 
                 MoveFile dirId ->
                     ( model
@@ -136,17 +140,46 @@ update msg ({ file } as model) =
                     ( { model | state = Error err }, Cmd.none )
 
         GotUpdate result ->
-            case result of
-                Ok file_ ->
-                    ( { model
-                        | session = Session.updateFile file_ model.session
-                        , file = file_
-                      }
-                    , Cmd.none
-                    )
+            case model.state of
+                MoveFile _ ->
+                    case result of
+                        Ok file_ ->
+                            ( { model
+                                | session =
+                                    Session.updateFile file_
+                                        model.session
+                                , file = file_
+                                , state = Init
+                              }
+                            , Cmd.none
+                            )
 
-                Err err ->
-                    ( { model | state = Error err }, Cmd.none )
+                        Err err ->
+                            ( { model | state = Error err }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        GotDelete result ->
+            case model.state of
+                ConfirmDelete ->
+                    case result of
+                        Ok file_ ->
+                            ( { model
+                                | session =
+                                    Session.removeFile file_
+                                        model.session
+                                , state = Init
+                                , message = "File deleted"
+                              }
+                            , Cmd.none
+                            )
+
+                        Err err ->
+                            ( { model | state = Error err }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 
