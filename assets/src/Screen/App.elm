@@ -196,7 +196,7 @@ viewDir dir =
                 )
                 (Json.Decode.field "detail" Json.Decode.int)
         ]
-        [ Html.div [ Html.Attributes.class "dir" ] [ Icons.dir [] ]
+        [ Html.div [ Html.Attributes.class "dir" ] [ Icons.dir [ "dir-icon" ] ]
         , Html.div [ Html.Attributes.class "dir-name" ] [ Html.text dir.name ]
         ]
 

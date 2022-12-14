@@ -175,7 +175,8 @@ viewInit model =
             [ Html.text model.message ]
         , Html.div [ Html.Attributes.id "modal-item-wrap" ]
             [ Html.div [ Html.Attributes.class "item" ]
-                [ Html.div [ Html.Attributes.class "dir" ] [ Icons.dir [] ]
+                [ Html.div [ Html.Attributes.class "dir" ]
+                    [ Icons.dir [ "dir-icon" ] ]
                 , Html.div [ Html.Attributes.class "dir-name" ]
                     [ Html.text <|
                         String.join "/"

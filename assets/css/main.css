@@ -129,6 +129,10 @@ button {
   width: 15rem;
 }
 
+#app div.item svg.dir-icon {
+  fill: var(--blue);
+}
+
 #app div.item div.file {
   padding: 2rem;
 }
