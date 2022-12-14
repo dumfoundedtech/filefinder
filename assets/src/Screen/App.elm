@@ -7,7 +7,9 @@ import Html
 import Html.Attributes
 import Html.Events
 import Icons
+import Json.Decode
 import Ports
+import Screen.App.DirModal
 import Screen.App.FileModal
 import Session
 
@@ -24,6 +26,7 @@ type alias Model =
 
 type Modal
     = InitModal
+    | DirModal Screen.App.DirModal.Model
     | FileModal Screen.App.FileModal.Model
 
 
@@ -44,8 +47,10 @@ type Msg
     = ClickNewFolder
     | ClickUploadFile
     | ClickDir Data.Dir.Dir
+    | DoubleClickDir Data.Dir.Dir
     | ClickFile Data.File.File
     | ClickCloseModal
+    | DirModalMsg Screen.App.DirModal.Msg
     | FileModalMsg Screen.App.FileModal.Msg
 
 
@@ -59,14 +64,30 @@ update msg model =
             ( model, Cmd.none )
 
         ClickDir dir ->
-            ( model, Cmd.none )
+            routeDirModal model
+                (Screen.App.DirModal.init model.session dir)
+
+        DoubleClickDir dir ->
+            ( { model | session = Session.updateDirId dir.id model.session }
+            , Cmd.none
+            )
 
         ClickFile file ->
-            routeFileModal model
+            Tuple.mapBoth (\model_ -> { model | modal = FileModal model_ })
+                (Cmd.map FileModalMsg)
                 (Screen.App.FileModal.init model.session file)
 
         ClickCloseModal ->
             ( model, Ports.toggleModal () )
+
+        DirModalMsg msg_ ->
+            case model.modal of
+                DirModal model_ ->
+                    routeDirModal model
+                        (Screen.App.DirModal.update msg_ model_)
+
+                _ ->
+                    ( model, Cmd.none )
 
         FileModalMsg msg_ ->
             case model.modal of
@@ -78,12 +99,27 @@ update msg model =
                     ( model, Cmd.none )
 
 
+routeDirModal :
+    Model
+    -> ( Screen.App.DirModal.Model, Cmd Screen.App.DirModal.Msg )
+    -> ( Model, Cmd Msg )
+routeDirModal model =
+    Tuple.mapBoth
+        (\model_ ->
+            { model | modal = DirModal model_, session = model_.session }
+        )
+        (Cmd.map DirModalMsg)
+
+
 routeFileModal :
     Model
     -> ( Screen.App.FileModal.Model, Cmd Screen.App.FileModal.Msg )
     -> ( Model, Cmd Msg )
 routeFileModal model =
-    Tuple.mapBoth (\model_ -> { model | modal = FileModal model_ })
+    Tuple.mapBoth
+        (\model_ ->
+            { model | modal = FileModal model_, session = model_.session }
+        )
         (Cmd.map FileModalMsg)
 
 
@@ -113,10 +149,14 @@ viewMain : Model -> Html.Html Msg
 viewMain model =
     let
         dirs =
-            List.map Tuple.second <| Dict.toList model.session.dirs
+            List.map Tuple.second <|
+                List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
+                    Dict.toList model.session.dirs
 
         files =
-            List.map Tuple.second <| Dict.toList model.session.files
+            List.map Tuple.second <|
+                List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
+                    Dict.toList model.session.files
     in
     Html.main_ [ Html.Attributes.id "main" ]
         (viewInfoBar model
@@ -145,7 +185,16 @@ viewDir : Data.Dir.Dir -> Html.Html Msg
 viewDir dir =
     Html.div
         [ Html.Attributes.class "item"
-        , Html.Events.onClick <| ClickDir dir
+        , Html.Events.on "click" <|
+            Json.Decode.andThen
+                (\detail ->
+                    if detail < 2 then
+                        Json.Decode.succeed <| ClickDir dir
+
+                    else
+                        Json.Decode.succeed <| DoubleClickDir dir
+                )
+                (Json.Decode.field "detail" Json.Decode.int)
         ]
         [ Html.div [ Html.Attributes.class "dir" ] [ Icons.dir [] ]
         , Html.div [ Html.Attributes.class "dir-name" ] [ Html.text dir.name ]
@@ -214,6 +263,9 @@ viewModalContent model =
     case model.modal of
         InitModal ->
             []
+
+        DirModal model_ ->
+            [ Html.map DirModalMsg <| Screen.App.DirModal.view model_ ]
 
         FileModal model_ ->
             [ Html.map FileModalMsg <| Screen.App.FileModal.view model_ ]

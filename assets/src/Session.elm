@@ -6,6 +6,7 @@ module Session exposing
     , loadFiles
     , removeFile
     , updateDir
+    , updateDirId
     , updateFile
     )
 
@@ -45,6 +46,11 @@ decoder =
 
 
 -- DATA
+
+
+updateDirId : Data.Dir.Id -> Session -> Session
+updateDirId dirId session =
+    { session | dirId = dirId }
 
 
 loadDirs : Data.Dir.Data -> Session -> Session
