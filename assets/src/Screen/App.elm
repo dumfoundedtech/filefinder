@@ -11,6 +11,8 @@ import Json.Decode
 import Ports
 import Screen.App.DirModal
 import Screen.App.FileModal
+import Screen.App.NewDirModal
+import Screen.App.NewFileModal
 import Session
 
 
@@ -28,6 +30,8 @@ type Modal
     = InitModal
     | DirModal Screen.App.DirModal.Model
     | FileModal Screen.App.FileModal.Model
+    | NewDirModal Screen.App.NewDirModal.Model
+    | NewFileModal Screen.App.NewFileModal.Model
 
 
 init : Session.Session -> ( Model, Cmd Msg )
@@ -52,16 +56,20 @@ type Msg
     | ClickCloseModal
     | DirModalMsg Screen.App.DirModal.Msg
     | FileModalMsg Screen.App.FileModal.Msg
+    | NewDirModalMsg Screen.App.NewDirModal.Msg
+    | NewFileModalMsg Screen.App.NewFileModal.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickNewFolder ->
-            ( model, Cmd.none )
+            routeNewDirModal model
+                (Screen.App.NewDirModal.init model.session)
 
         ClickUploadFile ->
-            ( model, Cmd.none )
+            routeNewFileModal model
+                (Screen.App.NewFileModal.init model.session)
 
         ClickDir dir ->
             routeDirModal model
@@ -98,6 +106,24 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        NewDirModalMsg msg_ ->
+            case model.modal of
+                NewDirModal model_ ->
+                    routeNewDirModal model
+                        (Screen.App.NewDirModal.update msg_ model_)
+
+                _ ->
+                    ( model, Cmd.none )
+
+        NewFileModalMsg msg_ ->
+            case model.modal of
+                NewFileModal model_ ->
+                    routeNewFileModal model
+                        (Screen.App.NewFileModal.update msg_ model_)
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 routeDirModal :
     Model
@@ -121,6 +147,30 @@ routeFileModal model =
             { model | modal = FileModal model_, session = model_.session }
         )
         (Cmd.map FileModalMsg)
+
+
+routeNewDirModal :
+    Model
+    -> ( Screen.App.NewDirModal.Model, Cmd Screen.App.NewDirModal.Msg )
+    -> ( Model, Cmd Msg )
+routeNewDirModal model =
+    Tuple.mapBoth
+        (\model_ ->
+            { model | modal = NewDirModal model_, session = model_.session }
+        )
+        (Cmd.map NewDirModalMsg)
+
+
+routeNewFileModal :
+    Model
+    -> ( Screen.App.NewFileModal.Model, Cmd Screen.App.NewFileModal.Msg )
+    -> ( Model, Cmd Msg )
+routeNewFileModal model =
+    Tuple.mapBoth
+        (\model_ ->
+            { model | modal = NewFileModal model_, session = model_.session }
+        )
+        (Cmd.map NewFileModalMsg)
 
 
 
@@ -269,3 +319,9 @@ viewModalContent model =
 
         FileModal model_ ->
             [ Html.map FileModalMsg <| Screen.App.FileModal.view model_ ]
+
+        NewDirModal model_ ->
+            [ Html.map NewDirModalMsg <| Screen.App.NewDirModal.view model_ ]
+
+        NewFileModal model_ ->
+            [ Html.map NewFileModalMsg <| Screen.App.NewFileModal.view model_ ]
