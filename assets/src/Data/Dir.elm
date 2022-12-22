@@ -2,6 +2,7 @@ module Data.Dir exposing
     ( Data
     , Dir
     , Id
+    , appendDir
     , dirPath
     , getDirShopDirs
     , getRootShopDirs
@@ -11,12 +12,14 @@ module Data.Dir exposing
     , initData
     , initId
     , optionalIdDecoder
+    , update
     )
 
 import Api
 import Dict
 import Http
 import Json.Decode
+import Json.Encode
 
 
 
@@ -37,6 +40,11 @@ type alias Data =
 initData : Data
 initData =
     Dict.empty
+
+
+appendDir : Dir -> Data -> Data
+appendDir dir data =
+    Dict.insert (idToString dir.id) dir data
 
 
 
@@ -153,6 +161,25 @@ getDirShopDirs id { token, tracker, tagger } =
         , expect = Http.expectJson tagger dataDecoder
         , timeout = Nothing
         , tracker = tracker
+        }
+
+
+
+-- UPDATE
+
+
+update : String -> Dir -> (Result Http.Error Dir -> msg) -> Cmd msg
+update token dir tagger =
+    Api.request token
+        { method = "PATCH"
+        , headers = []
+        , url = "/dirs/" ++ idToString dir.id
+        , body =
+            Http.jsonBody <|
+                Json.Encode.object [ ( "name", Json.Encode.string dir.name ) ]
+        , expect = Http.expectJson tagger decoder
+        , timeout = Nothing
+        , tracker = Nothing
         }
 
 

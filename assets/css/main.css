@@ -4,7 +4,6 @@
   --dark-gray: #0f172a;
   --blue: #15b0f0;
   --red: #d65c5c;
-  --green: #5cd685;
   --white: #ffffff;
   --transparent-blue: #d7f0fc;
   --heading-font: "Permanent Marker", cursive;
@@ -146,7 +145,9 @@ button {
 #app div.item div.dir-name,
 #app div.item div.file-name,
 #app #modal-confirm #modal-confirm-message,
-#app #modal-move-item #modal-move-item-select {
+#app #modal-rename-item #modal-rename-item-input-field,
+#app #modal-move-item #modal-move-item-select,
+#app #modal-create-item #modal-create-item-input-field {
   color: var(--dark-gray);
   font-family: var(--paragraph-font);
   overflow: hidden;
@@ -295,7 +296,9 @@ button {
 
 #app #modal-item-wrap div.file-name,
 #app #modal-confirm div#modal-confirm-message,
-#app #modal-move-item div#modal-move-item-select {
+#app #modal-rename-item div#modal-rename-item-input-field,
+#app #modal-move-item div#modal-move-item-select,
+#app #modal-create-item div#modal-create-item-input-field {
   font-size: 1.125rem;
   line-height: 1.75rem;
   max-width: 100%;
@@ -316,7 +319,9 @@ button {
 
 #app #modal-item-actions button,
 #app #modal-confirm button,
-#app #modal-move-item button {
+#app #modal-rename-item button,
+#app #modal-move-item button,
+#app #modal-create-item button {
   background: var(--white);
   border: 2px solid var(--blue);
   color: var(--blue);
@@ -324,19 +329,39 @@ button {
   letter-spacing: 0.05rem;
   line-height: 1.25rem;
   margin-right: 2rem;
+  outline: none;
   width: 7rem;
+}
+
+#app #modal-confirm button,
+#app #modal-rename-item button,
+#app #modal-move-item button,
+#app #modal-create-item button {
+  border: 2px solid var(--dark-gray);
+  color: var(--dark-gray);
 }
 
 #app #modal-item-actions button:hover,
 #app #modal-confirm button:hover,
-#app #modal-move-item button:hover {
+#app #modal-rename-item button:hover,
+#app #modal-move-item button:hover,
+#app #modal-create-item button:hover {
   background: var(--blue);
   color: var(--white);
 }
 
+#app #modal-confirm button:hover,
+#app #modal-rename-item button:hover,
+#app #modal-move-item button:hover,
+#app #modal-create-item button:hover {
+  background: var(--dark-gray);
+}
+
 #app #modal-item-actions button:last-of-type,
 #app #modal-confirm button:last-of-type,
-#app #modal-move-item button:last-of-type {
+#app #modal-rename-item button:last-of-type,
+#app #modal-move-item button:last-of-type,
+#app #modal-create-item button:last-of-type {
   margin-right: 0;
 }
 
@@ -352,18 +377,24 @@ button {
   color: var(--white);
 }
 
-#app #modal-move-item button#modal-move-confirm-action {
-  border-color: var(--green);
-  color: var(--green);
+#app #modal-rename-item button#modal-rename-item-confirm-action,
+#app #modal-move-item button#modal-move-confirm-action,
+#app #modal-create-item button#modal-create-item-confirm-action {
+  border-color: var(--blue);
+  color: var(--blue);
 }
 
-#app #modal-move-item button#modal-move-confirm-action:hover {
-  background: var(--green);
+#app #modal-rename-item button#modal-rename-item-confirm-action:hover,
+#app #modal-move-item button#modal-move-confirm-action:hover,
+#app #modal-create-item button#modal-create-item-confirm-action:hover {
+  background: var(--blue);
   color: var(--white);
 }
 
 #app #modal-confirm,
-#app #modal-move-item {
+#app #modal-rename-item,
+#app #modal-move-item,
+#app #modal-create-item {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -373,23 +404,44 @@ button {
 }
 
 #app #modal-confirm #modal-confirm-actions,
-#app #modal-move-item #modal-move-item-actions {
+#app #modal-rename-item #modal-rename-item-actions,
+#app #modal-move-item #modal-move-item-actions,
+#app #modal-create-item #modal-create-item-actions {
   margin-top: 2rem;
 }
 
-#app div#modal-move-item-select {
+#app div#modal-rename-item-input-field,
+#app div#modal-move-item-select,
+#app div#modal-create-item-input-field {
   align-items: center;
   display: flex;
   flex-direction: column;
 }
 
+#app div#modal-rename-item-input-field label,
+#app div#modal-create-item-input-field label {
+  width: 100%;
+}
+
+#app div#modal-rename-item-input-field input,
+#app div#modal-create-item-input-field input {
+  border-radius: 0.5rem;
+  border: 2px solid var(--blue);
+  margin-top: 2rem;
+  outline: none;
+  padding: 1rem;
+  text-align: center;
+  width: 50%;
+}
+
 #app div#modal-move-item-select select {
   border-radius: 0.5rem;
-  border: 2px solid var(--dark-gray);
+  border: 2px solid var(--blue);
   font-family: inherit;
   font-size: 0.875rem;
-  margin-top: 1rem;
   line-height: 1.25rem;
+  margin-top: 1rem;
+  outline: none;
   padding: 1rem;
 }
 

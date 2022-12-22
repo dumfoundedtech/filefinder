@@ -1,5 +1,6 @@
 module Screen.App.DirModal exposing (Model, Msg, init, update, view)
 
+import Browser.Dom
 import Data.Dir
 import Dict
 import Html
@@ -10,6 +11,7 @@ import Icons
 import Json.Decode
 import Ports
 import Session
+import Task
 
 
 
@@ -29,18 +31,34 @@ type State
     | RenameDir String
     | MoveDir Data.Dir.Id
     | ConfirmDelete
+    | NewDir String
     | Error Http.Error
 
 
-init : Session.Session -> Data.Dir.Dir -> ( Model, Cmd Msg )
+init : Session.Session -> Maybe Data.Dir.Dir -> ( Model, Cmd Msg )
 init session dir =
-    ( { session = session
-      , dir = dir
-      , state = Init
-      , message = ""
-      }
-    , Ports.toggleModal ()
-    )
+    case dir of
+        Just dir_ ->
+            ( { session = session
+              , dir = dir_
+              , state = Init
+              , message = ""
+              }
+            , Ports.toggleModal ()
+            )
+
+        Nothing ->
+            ( { session = session
+              , dir =
+                    { id = Data.Dir.initId
+                    , name = ""
+                    , dirId = session.dirId
+                    }
+              , state = NewDir ""
+              , message = ""
+              }
+            , Ports.toggleModal ()
+            )
 
 
 
@@ -50,26 +68,38 @@ init session dir =
 type Msg
     = ClickOpen
     | ClickRename
+    | InputName String
     | ClickMove
     | ClickOk
     | ChangeDir Data.Dir.Id
     | ClickDelete
     | ClickCancel
     | ClickConfirm
+    | GotDir (Result Http.Error Data.Dir.Dir)
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ session, dir } as model) =
     case msg of
         ClickOpen ->
-            ( { model
-                | session = Session.updateDirId model.dir.id model.session
-              }
+            ( { model | session = Session.updateDirId dir.id session }
             , Ports.toggleModal ()
             )
 
         ClickRename ->
-            ( { model | message = "", state = RenameDir "" }, Cmd.none )
+            ( { model | message = "", state = RenameDir "" }
+            , Task.attempt (\_ -> NoOp)
+                (Browser.Dom.focus "modal-rename-item-input-name")
+            )
+
+        InputName name ->
+            case model.state of
+                RenameDir _ ->
+                    ( { model | state = RenameDir name }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ClickMove ->
             ( { model | message = "", state = MoveDir Data.Dir.initId }
@@ -111,9 +141,10 @@ update msg model =
 
         ClickConfirm ->
             case model.state of
-                RenameDir _ ->
-                    -- TODO
-                    ( { model | state = Init }, Cmd.none )
+                RenameDir name ->
+                    ( { model | dir = { dir | name = name } }
+                    , Data.Dir.update session.token { dir | name = name } GotDir
+                    )
 
                 MoveDir _ ->
                     -- TODO
@@ -126,6 +157,24 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        GotDir result ->
+            case result of
+                Ok dir_ ->
+                    ( { model
+                        | session =
+                            Session.loadDirs
+                                (Data.Dir.appendDir dir_ session.dirs)
+                                session
+                      }
+                    , Ports.toggleModal ()
+                    )
+
+                Err err ->
+                    ( { model | state = Error err }, Cmd.none )
+
+        NoOp ->
+            ( model, Cmd.none )
+
 
 
 -- VIEW
@@ -137,14 +186,17 @@ view model =
         Init ->
             viewInit model
 
-        RenameDir _ ->
-            Html.div [] []
+        RenameDir name ->
+            viewRenameDir name model
 
         MoveDir _ ->
             viewMoveDir model
 
         ConfirmDelete ->
             viewConfirmDelete
+
+        NewDir name ->
+            viewNewDir name
 
         Error err ->
             let
@@ -198,6 +250,37 @@ viewInit model =
                     , Html.Events.onClick ClickDelete
                     ]
                     [ Html.text "Delete" ]
+                ]
+            ]
+        ]
+
+
+viewRenameDir : String -> Model -> Html.Html Msg
+viewRenameDir name model =
+    Html.div
+        [ Html.Attributes.id "modal-content" ]
+        [ Html.div [ Html.Attributes.id "modal-banner" ] []
+        , Html.div
+            [ Html.Attributes.id "modal-rename-item" ]
+            [ Html.div [ Html.Attributes.id "modal-rename-item-input-field" ]
+                [ Html.label []
+                    [ Html.text <| "Rename \"" ++ model.dir.name ++ "\"" ]
+                , Html.input
+                    [ Html.Attributes.id "modal-rename-item-input-name"
+                    , Html.Attributes.placeholder "Enter new name"
+                    , Html.Attributes.value name
+                    , Html.Events.onInput InputName
+                    ]
+                    []
+                ]
+            , Html.div [ Html.Attributes.id "modal-rename-item-actions" ]
+                [ Html.button [ Html.Events.onClick ClickCancel ]
+                    [ Html.text "Cancel" ]
+                , Html.button
+                    [ Html.Attributes.id "modal-rename-item-confirm-action"
+                    , Html.Events.onClick ClickConfirm
+                    ]
+                    [ Html.text "Update" ]
                 ]
             ]
         ]
@@ -294,6 +377,37 @@ viewConfirmDelete =
                     [ Html.Attributes.id "modal-confirm-delete-action"
                     ]
                     [ Html.text "Delete" ]
+                ]
+            ]
+        ]
+
+
+viewNewDir : String -> Html.Html Msg
+viewNewDir name =
+    Html.div
+        [ Html.Attributes.id "modal-content" ]
+        [ Html.div [ Html.Attributes.id "modal-banner" ] []
+        , Html.div
+            [ Html.Attributes.id "modal-create-item" ]
+            [ Html.div [ Html.Attributes.id "modal-create-item-input-field" ]
+                [ Html.label []
+                    [ Html.text <| "Create new folder" ]
+                , Html.input
+                    [ Html.Attributes.id "modal-create-item-input-name"
+                    , Html.Attributes.placeholder "New folder name"
+                    , Html.Attributes.value name
+                    , Html.Events.onInput InputName
+                    ]
+                    []
+                ]
+            , Html.div [ Html.Attributes.id "modal-create-item-actions" ]
+                [ Html.button [ Html.Events.onClick ClickCancel ]
+                    [ Html.text "Cancel" ]
+                , Html.button
+                    [ Html.Attributes.id "modal-create-item-confirm-action"
+                    , Html.Events.onClick ClickConfirm
+                    ]
+                    [ Html.text "Create" ]
                 ]
             ]
         ]
