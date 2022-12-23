@@ -143,6 +143,12 @@ button {
 }
 
 #app div.item div.dir-name,
+#app div.item div.file-name {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app div.item div.dir-name,
 #app div.item div.file-name,
 #app #modal-confirm #modal-confirm-message,
 #app #modal-rename-item #modal-rename-item-input-field,
@@ -152,8 +158,6 @@ button {
   font-family: var(--paragraph-font);
   overflow: hidden;
   text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   width: 15rem;
 }
 
@@ -427,6 +431,7 @@ button {
 #app div#modal-create-item-input-field input {
   border-radius: 0.5rem;
   border: 2px solid var(--blue);
+  font-family: inherit;
   margin-top: 2rem;
   outline: none;
   padding: 1rem;

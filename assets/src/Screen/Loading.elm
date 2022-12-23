@@ -40,12 +40,12 @@ init session =
       , state = Loading 0
       }
     , Cmd.batch
-        [ Data.Dir.getRootShopDirs
+        [ Data.Dir.getDirShopDirs Data.Dir.initId
             { token = session.token
             , tracker = Nothing
             , tagger = GotDirs
             }
-        , Data.File.getRootShopFiles
+        , Data.File.getDirShopFiles Data.Dir.initId
             { token = session.token
             , tracker = Nothing
             , tagger = GotFiles

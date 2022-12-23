@@ -4,8 +4,8 @@ module Data.File exposing
     , delete
     , getDirShopFiles
     , getFileBytes
-    , getRootShopFiles
     , initData
+    , mergeData
     , update
     )
 
@@ -41,6 +41,11 @@ type alias Data =
 initData : Data
 initData =
     Dict.empty
+
+
+mergeData : Data -> Data -> Data
+mergeData =
+    Dict.union
 
 
 
@@ -101,24 +106,6 @@ typeDecoder =
 
 
 -- REQUESTS
-
-
-getRootShopFiles :
-    { token : String
-    , tracker : Maybe String
-    , tagger : Result Http.Error Data -> msg
-    }
-    -> Cmd msg
-getRootShopFiles { token, tracker, tagger } =
-    Api.request token
-        { method = "GET"
-        , headers = []
-        , url = "/shop/dirs/root/files"
-        , body = Http.emptyBody
-        , expect = Http.expectJson tagger dataDecoder
-        , timeout = Nothing
-        , tracker = tracker
-        }
 
 
 getDirShopFiles :

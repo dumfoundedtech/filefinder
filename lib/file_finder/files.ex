@@ -107,8 +107,9 @@ defmodule FileFinder.Files do
       from(d in Dir, where: d.shop_id == ^shop_id, where: d.dir_id == ^dir_id)
       |> Repo.all()
     else
-      from(d in Dir, where: d.shop_id == ^shop_id, where: is_nil(d.dir_id))
-      |> Repo.all()
+      # from(d in Dir, where: d.shop_id == ^shop_id, where: is_nil(d.dir_id))
+      # |> Repo.all()
+      from(d in Dir, where: d.shop_id == ^shop_id) |> Repo.all()
     end
   end
 
@@ -213,8 +214,9 @@ defmodule FileFinder.Files do
       from(f in File, where: f.shop_id == ^shop_id, where: f.dir_id == ^dir_id)
       |> Repo.all()
     else
-      from(f in File, where: f.shop_id == ^shop_id, where: is_nil(f.dir_id))
-      |> Repo.all()
+      # from(f in File, where: f.shop_id == ^shop_id, where: is_nil(f.dir_id))
+      # |> Repo.all()
+      from(f in File, where: f.shop_id == ^shop_id) |> Repo.all()
     end
   end
 end

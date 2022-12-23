@@ -3,14 +3,15 @@ module Data.Dir exposing
     , Dir
     , Id
     , appendDir
+    , create
     , dirPath
     , getDirShopDirs
-    , getRootShopDirs
     , idDecoder
     , idFromInt
     , idToString
     , initData
     , initId
+    , mergeData
     , optionalIdDecoder
     , update
     )
@@ -40,6 +41,11 @@ type alias Data =
 initData : Data
 initData =
     Dict.empty
+
+
+mergeData : Data -> Data -> Data
+mergeData =
+    Dict.union
 
 
 appendDir : Dir -> Data -> Data
@@ -122,24 +128,6 @@ idToString id =
 -- REQUESTS
 
 
-getRootShopDirs :
-    { token : String
-    , tracker : Maybe String
-    , tagger : Result Http.Error Data -> msg
-    }
-    -> Cmd msg
-getRootShopDirs { token, tracker, tagger } =
-    Api.request token
-        { method = "GET"
-        , headers = []
-        , url = "/shop/dirs/root/dirs"
-        , body = Http.emptyBody
-        , expect = Http.expectJson tagger dataDecoder
-        , timeout = Nothing
-        , tracker = tracker
-        }
-
-
 getDirShopDirs :
     Id
     ->
@@ -165,6 +153,41 @@ getDirShopDirs id { token, tracker, tagger } =
 
 
 
+-- CREATE
+
+
+create :
+    { dirId : Id
+    , name : String
+    , shopId : Int
+    , token : String
+    }
+    -> (Result Http.Error Dir -> msg)
+    -> Cmd msg
+create { dirId, name, shopId, token } tagger =
+    Api.request token
+        { method = "POST"
+        , headers = []
+        , url = "/dirs"
+        , body =
+            Http.jsonBody <|
+                Json.Encode.object
+                    [ ( "dir"
+                      , Json.Encode.object
+                            ([ ( "name", Json.Encode.string name )
+                             , ( "shop_id", Json.Encode.int shopId )
+                             ]
+                                ++ encodedDirId dirId
+                            )
+                      )
+                    ]
+        , expect = Http.expectJson tagger decoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+
 -- UPDATE
 
 
@@ -176,11 +199,28 @@ update token dir tagger =
         , url = "/dirs/" ++ idToString dir.id
         , body =
             Http.jsonBody <|
-                Json.Encode.object [ ( "name", Json.Encode.string dir.name ) ]
+                Json.Encode.object
+                    [ ( "dir"
+                      , Json.Encode.object
+                            (( "name", Json.Encode.string dir.name )
+                                :: encodedDirId dir.dirId
+                            )
+                      )
+                    ]
         , expect = Http.expectJson tagger decoder
         , timeout = Nothing
         , tracker = Nothing
         }
+
+
+encodedDirId : Id -> List ( String, Json.Encode.Value )
+encodedDirId dirId =
+    case dirId of
+        Root ->
+            []
+
+        Sub id ->
+            [ ( "dir_id", Json.Encode.int id ) ]
 
 
 

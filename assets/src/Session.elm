@@ -25,6 +25,7 @@ type alias Session =
     { dirId : Data.Dir.Id
     , dirs : Data.Dir.Data
     , files : Data.File.Data
+    , shopId : Int
     , shopName : String
     , token : String
     }
@@ -36,10 +37,11 @@ type alias Session =
 
 decoder : Json.Decode.Decoder Session
 decoder =
-    Json.Decode.map5 Session
+    Json.Decode.map6 Session
         (Json.Decode.succeed Data.Dir.initId)
         (Json.Decode.succeed Data.Dir.initData)
         (Json.Decode.succeed Data.File.initData)
+        (Json.Decode.field "shop_id" Json.Decode.int)
         (Json.Decode.field "shop_name" Json.Decode.string)
         (Json.Decode.field "token" Json.Decode.string)
 

@@ -2,6 +2,7 @@ module Screen.App.DirModal exposing (Model, Msg, init, update, view)
 
 import Browser.Dom
 import Data.Dir
+import Data.File
 import Dict
 import Html
 import Html.Attributes
@@ -83,32 +84,53 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ session, dir } as model) =
     case msg of
         ClickOpen ->
-            ( { model | session = Session.updateDirId dir.id session }
-            , Ports.toggleModal ()
-            )
+            case model.state of
+                Init ->
+                    ( { model | session = Session.updateDirId dir.id session }
+                    , Ports.toggleModal ()
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ClickRename ->
-            ( { model | message = "", state = RenameDir "" }
-            , Task.attempt (\_ -> NoOp)
-                (Browser.Dom.focus "modal-rename-item-input-name")
-            )
+            case model.state of
+                Init ->
+                    ( { model | message = "", state = RenameDir dir.name }
+                    , Task.attempt (\_ -> NoOp)
+                        (Browser.Dom.focus "modal-rename-item-input-name")
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         InputName name ->
             case model.state of
                 RenameDir _ ->
                     ( { model | state = RenameDir name }, Cmd.none )
 
+                NewDir _ ->
+                    ( { model | state = NewDir name }, Cmd.none )
+
                 _ ->
                     ( model, Cmd.none )
 
         ClickMove ->
-            ( { model | message = "", state = MoveDir Data.Dir.initId }
-            , Cmd.none
-            )
+            case model.state of
+                Init ->
+                    ( { model | message = "", state = MoveDir Data.Dir.initId }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ClickOk ->
             case model.state of
                 MoveDir _ ->
+                    ( { model | state = Init }, Cmd.none )
+
+                ConfirmDelete ->
                     ( { model | state = Init }, Cmd.none )
 
                 _ ->
@@ -123,7 +145,14 @@ update msg ({ session, dir } as model) =
                     ( model, Cmd.none )
 
         ClickDelete ->
-            ( { model | message = "", state = ConfirmDelete }, Cmd.none )
+            case model.state of
+                Init ->
+                    ( { model | message = "", state = ConfirmDelete }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ClickCancel ->
             case model.state of
@@ -142,17 +171,31 @@ update msg ({ session, dir } as model) =
         ClickConfirm ->
             case model.state of
                 RenameDir name ->
-                    ( { model | dir = { dir | name = name } }
+                    ( model
                     , Data.Dir.update session.token { dir | name = name } GotDir
                     )
 
-                MoveDir _ ->
-                    -- TODO
-                    ( { model | state = Init }, Cmd.none )
+                MoveDir dirId ->
+                    ( model
+                    , Data.Dir.update session.token
+                        { dir | dirId = dirId }
+                        GotDir
+                    )
 
                 ConfirmDelete ->
-                    -- TODO
+                    -- TODO: delete
                     ( { model | state = Init }, Cmd.none )
+
+                NewDir name ->
+                    ( model
+                    , Data.Dir.create
+                        { dirId = session.dirId
+                        , name = name
+                        , shopId = session.shopId
+                        , token = session.token
+                        }
+                        GotDir
+                    )
 
                 _ ->
                     ( model, Cmd.none )
@@ -162,9 +205,11 @@ update msg ({ session, dir } as model) =
                 Ok dir_ ->
                     ( { model
                         | session =
-                            Session.loadDirs
-                                (Data.Dir.appendDir dir_ session.dirs)
-                                session
+                            Session.updateDirId dir_.dirId <|
+                                Session.loadDirs
+                                    (Data.Dir.appendDir dir_ session.dirs)
+                                    session
+                        , state = Init
                       }
                     , Ports.toggleModal ()
                     )
@@ -193,7 +238,7 @@ view model =
             viewMoveDir model
 
         ConfirmDelete ->
-            viewConfirmDelete
+            viewConfirmDelete model
 
         NewDir name ->
             viewNewDir name
@@ -359,27 +404,59 @@ dirSelect data ( id, dir ) =
         [ Html.text <| Data.Dir.dirPath dir.id data ]
 
 
-viewConfirmDelete : Html.Html Msg
-viewConfirmDelete =
-    -- TODO: only delete on empty
-    Html.div [ Html.Attributes.id "modal-content" ]
-        [ Html.div [ Html.Attributes.id "modal-banner" ] []
-        , Html.div
-            [ Html.Attributes.id "modal-confirm" ]
-            [ Html.div [ Html.Attributes.id "modal-confirm-message" ]
-                [ Html.text
-                    "Are you sure you want to delete this folder?"
-                ]
-            , Html.div [ Html.Attributes.id "modal-confirm-actions" ]
-                [ Html.button [ Html.Events.onClick ClickCancel ]
-                    [ Html.text "Cancel" ]
-                , Html.button
-                    [ Html.Attributes.id "modal-confirm-delete-action"
+viewConfirmDelete : Model -> Html.Html Msg
+viewConfirmDelete model =
+    let
+        hasNestedDirs =
+            not <|
+                Dict.isEmpty <|
+                    Dict.filter (\_ dir -> dir.dirId == model.dir.id) <|
+                        model.session.dirs
+
+        hasFiles =
+            not <|
+                Dict.isEmpty <|
+                    Dict.filter (\_ file -> file.dirId == model.dir.id) <|
+                        model.session.files
+    in
+    if hasNestedDirs || hasFiles then
+        Html.div
+            [ Html.Attributes.id "modal-content" ]
+            [ Html.div [ Html.Attributes.id "modal-banner" ] []
+            , Html.div
+                [ Html.Attributes.id "modal-move-item" ]
+                [ Html.div [ Html.Attributes.id "modal-move-item-select" ]
+                    [ Html.text <|
+                        "Warning! This folder is not empty."
+                            ++ " Please first move or delete the contents of"
+                            ++ " this folder."
                     ]
-                    [ Html.text "Delete" ]
+                , Html.div [ Html.Attributes.id "modal-move-item-actions" ]
+                    [ Html.button [ Html.Events.onClick ClickOk ]
+                        [ Html.text "Ok" ]
+                    ]
                 ]
             ]
-        ]
+
+    else
+        Html.div [ Html.Attributes.id "modal-content" ]
+            [ Html.div [ Html.Attributes.id "modal-banner" ] []
+            , Html.div
+                [ Html.Attributes.id "modal-confirm" ]
+                [ Html.div [ Html.Attributes.id "modal-confirm-message" ]
+                    [ Html.text
+                        "Are you sure you want to delete this folder?"
+                    ]
+                , Html.div [ Html.Attributes.id "modal-confirm-actions" ]
+                    [ Html.button [ Html.Events.onClick ClickCancel ]
+                        [ Html.text "Cancel" ]
+                    , Html.button
+                        [ Html.Attributes.id "modal-confirm-delete-action"
+                        ]
+                        [ Html.text "Delete" ]
+                    ]
+                ]
+            ]
 
 
 viewNewDir : String -> Html.Html Msg
