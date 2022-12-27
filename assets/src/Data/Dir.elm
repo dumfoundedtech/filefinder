@@ -4,6 +4,7 @@ module Data.Dir exposing
     , Id
     , appendDir
     , create
+    , delete
     , dirPath
     , getDirShopDirs
     , idDecoder
@@ -13,6 +14,7 @@ module Data.Dir exposing
     , initId
     , mergeData
     , optionalIdDecoder
+    , removeDir
     , update
     )
 
@@ -51,6 +53,11 @@ mergeData =
 appendDir : Dir -> Data -> Data
 appendDir dir data =
     Dict.insert (idToString dir.id) dir data
+
+
+removeDir : Dir -> Data -> Data
+removeDir dir =
+    Dict.remove <| idToString dir.id
 
 
 
@@ -207,6 +214,19 @@ update token dir tagger =
                             )
                       )
                     ]
+        , expect = Http.expectJson tagger decoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+delete : String -> Dir -> (Result Http.Error Dir -> msg) -> Cmd msg
+delete token dir tagger =
+    Api.request token
+        { method = "DELETE"
+        , headers = []
+        , url = "/dirs/" ++ idToString dir.id
+        , body = Http.emptyBody
         , expect = Http.expectJson tagger decoder
         , timeout = Nothing
         , tracker = Nothing

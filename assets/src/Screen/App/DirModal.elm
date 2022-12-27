@@ -2,7 +2,6 @@ module Screen.App.DirModal exposing (Model, Msg, init, update, view)
 
 import Browser.Dom
 import Data.Dir
-import Data.File
 import Dict
 import Html
 import Html.Attributes
@@ -77,6 +76,7 @@ type Msg
     | ClickCancel
     | ClickConfirm
     | GotDir (Result Http.Error Data.Dir.Dir)
+    | DeletedDir (Result Http.Error Data.Dir.Dir)
     | NoOp
 
 
@@ -183,8 +183,9 @@ update msg ({ session, dir } as model) =
                     )
 
                 ConfirmDelete ->
-                    -- TODO: delete
-                    ( { model | state = Init }, Cmd.none )
+                    ( model
+                    , Data.Dir.delete session.token dir DeletedDir
+                    )
 
                 NewDir name ->
                     ( model
@@ -209,6 +210,22 @@ update msg ({ session, dir } as model) =
                                 Session.loadDirs
                                     (Data.Dir.appendDir dir_ session.dirs)
                                     session
+                        , state = Init
+                      }
+                    , Ports.toggleModal ()
+                    )
+
+                Err err ->
+                    ( { model | state = Error err }, Cmd.none )
+
+        DeletedDir result ->
+            case result of
+                Ok dir_ ->
+                    ( { model
+                        | session =
+                            Session.loadDirs
+                                (Data.Dir.removeDir dir_ session.dirs)
+                                session
                         , state = Init
                       }
                     , Ports.toggleModal ()
@@ -452,6 +469,7 @@ viewConfirmDelete model =
                         [ Html.text "Cancel" ]
                     , Html.button
                         [ Html.Attributes.id "modal-confirm-delete-action"
+                        , Html.Events.onClick ClickConfirm
                         ]
                         [ Html.text "Delete" ]
                     ]
