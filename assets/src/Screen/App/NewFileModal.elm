@@ -1,9 +1,12 @@
 module Screen.App.NewFileModal exposing (Model, Msg, init, update, view)
 
+import File
+import File.Select
 import Html
 import Html.Attributes
 import Html.Events
 import Http
+import Json.Decode
 import Ports
 import Session
 
@@ -19,7 +22,7 @@ type alias Model =
 
 
 type State
-    = Init
+    = Init Bool
     | Waiting
     | Error Http.Error
 
@@ -27,7 +30,7 @@ type State
 init : Session.Session -> ( Model, Cmd Msg )
 init session =
     ( { session = session
-      , state = Init
+      , state = Init False
       }
     , Ports.toggleModal ()
     )
@@ -38,7 +41,11 @@ init session =
 
 
 type Msg
-    = ClickCancel
+    = ClickSelectFiles
+    | DragEnter
+    | DragLeave
+    | GotFiles File.File (List File.File)
+    | ClickCancel
     | ClickUpload
     | GotUpload (Result Http.Error ())
 
@@ -46,12 +53,53 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        ClickSelectFiles ->
+            case model.state of
+                Init _ ->
+                    ( model, File.Select.files [ "*/*" ] GotFiles )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        DragEnter ->
+            case model.state of
+                Init _ ->
+                    ( { model | state = Init True }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        DragLeave ->
+            case model.state of
+                Init _ ->
+                    ( { model | state = Init False }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        GotFiles _ _ ->
+            case model.state of
+                Init _ ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         ClickCancel ->
-            ( model, Ports.toggleModal () )
+            case model.state of
+                Init _ ->
+                    ( model, Ports.toggleModal () )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ClickUpload ->
-            -- TODO: upload file
-            ( model, Cmd.none )
+            case model.state of
+                Init _ ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         GotUpload result ->
             case result of
@@ -70,12 +118,46 @@ update msg model =
 view : Model -> Html.Html Msg
 view model =
     case model.state of
-        Init ->
+        Init hover ->
             Html.div [ Html.Attributes.id "modal-content" ]
                 [ Html.div [ Html.Attributes.id "modal-banner" ] []
                 , Html.form
                     [ Html.Attributes.id "modal-upload" ]
-                    [ Html.div [ Html.Attributes.id "modal-upload-select" ] []
+                    [ Html.div [ Html.Attributes.id "modal-upload-input" ]
+                        [ Html.text "Upload files"
+                        , Html.div
+                            [ Html.Attributes.id
+                                "modal-upload-input-select-files"
+                            , Html.Attributes.class
+                                (if hover then
+                                    "modal-upload-input-select-files-hover"
+
+                                 else
+                                    ""
+                                )
+                            , Html.Events.preventDefaultOn "dragenter" <|
+                                Json.Decode.succeed ( DragEnter, True )
+                            , Html.Events.preventDefaultOn "dragover" <|
+                                Json.Decode.succeed ( DragEnter, True )
+                            , Html.Events.preventDefaultOn "dragleave" <|
+                                Json.Decode.succeed ( DragLeave, True )
+                            , Html.Events.preventDefaultOn "drop" <|
+                                Json.Decode.map (\msg -> ( msg, True )) <|
+                                    Json.Decode.at [ "dataTransfer", "files" ]
+                                        (Json.Decode.oneOrMore GotFiles
+                                            File.decoder
+                                        )
+                            ]
+                            [ Html.button
+                                [ Html.Attributes.id
+                                    "modal-upload-input-select-files-action"
+                                , Html.Events.preventDefaultOn "click" <|
+                                    Json.Decode.succeed
+                                        ( ClickSelectFiles, True )
+                                ]
+                                [ Html.text "Select files" ]
+                            ]
+                        ]
                     , Html.div [ Html.Attributes.id "modal-upload-actions" ]
                         [ Html.button [ Html.Events.onClick ClickCancel ]
                             [ Html.text "Cancel" ]

@@ -188,11 +188,15 @@ update token file tagger =
         , body =
             Http.jsonBody <|
                 Json.Encode.object
-                    [ ( "dir_id"
-                      , Json.Encode.int <|
-                            Maybe.withDefault 0 <|
-                                String.toInt <|
-                                    Data.Dir.idToString file.dirId
+                    [ ( "file"
+                      , Json.Encode.object
+                            [ ( "dir_id"
+                              , Json.Encode.int <|
+                                    Maybe.withDefault 0 <|
+                                        String.toInt <|
+                                            Data.Dir.idToString file.dirId
+                              )
+                            ]
                       )
                     ]
         , expect = Http.expectJson tagger decoder

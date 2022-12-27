@@ -153,7 +153,8 @@ button {
 #app #modal-confirm #modal-confirm-message,
 #app #modal-rename-item #modal-rename-item-input-field,
 #app #modal-move-item #modal-move-item-select,
-#app #modal-create-item #modal-create-item-input-field {
+#app #modal-create-item #modal-create-item-input-field,
+#app #modal-upload #modal-upload-input {
   color: var(--dark-gray);
   font-family: var(--paragraph-font);
   overflow: hidden;
@@ -313,7 +314,8 @@ button {
   margin: 0 auto;
 }
 
-#app #modal-item-actions {
+#app #modal-item-actions,
+#app #modal-upload-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -325,7 +327,8 @@ button {
 #app #modal-confirm button,
 #app #modal-rename-item button,
 #app #modal-move-item button,
-#app #modal-create-item button {
+#app #modal-create-item button,
+#app #modal-upload button {
   background: var(--white);
   border: 2px solid var(--blue);
   color: var(--blue);
@@ -340,7 +343,8 @@ button {
 #app #modal-confirm button,
 #app #modal-rename-item button,
 #app #modal-move-item button,
-#app #modal-create-item button {
+#app #modal-create-item button,
+#app #modal-upload button {
   border: 2px solid var(--dark-gray);
   color: var(--dark-gray);
 }
@@ -349,7 +353,8 @@ button {
 #app #modal-confirm button:hover,
 #app #modal-rename-item button:hover,
 #app #modal-move-item button:hover,
-#app #modal-create-item button:hover {
+#app #modal-create-item button:hover,
+#app #modal-upload button:hover {
   background: var(--blue);
   color: var(--white);
 }
@@ -357,7 +362,8 @@ button {
 #app #modal-confirm button:hover,
 #app #modal-rename-item button:hover,
 #app #modal-move-item button:hover,
-#app #modal-create-item button:hover {
+#app #modal-create-item button:hover,
+#app #modal-upload button:hover {
   background: var(--dark-gray);
 }
 
@@ -365,7 +371,8 @@ button {
 #app #modal-confirm button:last-of-type,
 #app #modal-rename-item button:last-of-type,
 #app #modal-move-item button:last-of-type,
-#app #modal-create-item button:last-of-type {
+#app #modal-create-item button:last-of-type,
+#app #modal-upload button:last-of-type {
   margin-right: 0;
 }
 
@@ -383,14 +390,18 @@ button {
 
 #app #modal-rename-item button#modal-rename-item-confirm-action,
 #app #modal-move-item button#modal-move-confirm-action,
-#app #modal-create-item button#modal-create-item-confirm-action {
+#app #modal-create-item button#modal-create-item-confirm-action,
+#app #modal-upload button#modal-upload-input-select-files-action,
+#app #modal-upload button#modal-upload-upload-action {
   border-color: var(--blue);
   color: var(--blue);
 }
 
 #app #modal-rename-item button#modal-rename-item-confirm-action:hover,
 #app #modal-move-item button#modal-move-confirm-action:hover,
-#app #modal-create-item button#modal-create-item-confirm-action:hover {
+#app #modal-create-item button#modal-create-item-confirm-action:hover,
+#app #modal-upload button#modal-upload-input-select-files-action:hover,
+#app #modal-upload button#modal-upload-upload-action:hover {
   background: var(--blue);
   color: var(--white);
 }
@@ -398,7 +409,8 @@ button {
 #app #modal-confirm,
 #app #modal-rename-item,
 #app #modal-move-item,
-#app #modal-create-item {
+#app #modal-create-item,
+#app #modal-upload {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -423,7 +435,8 @@ button {
 }
 
 #app div#modal-rename-item-input-field label,
-#app div#modal-create-item-input-field label {
+#app div#modal-create-item-input-field label,
+#app div#modal-upload-input > div {
   width: 100%;
 }
 
@@ -448,6 +461,26 @@ button {
   margin-top: 1rem;
   outline: none;
   padding: 1rem;
+}
+
+#app #modal-upload button#modal-upload-input-select-files-action {
+  width: 80%;
+}
+
+#app div#modal-upload-input-select-files {
+  align-items: center;
+  border-radius: 0.5rem;
+  border: 2px dotted var(--blue);
+  display: flex;
+  flex-direction: column;
+  height: 15rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+#app #modal-upload div.modal-upload-input-select-files-hover {
+  background: var(--transparent-blue);
+  border: 2px solid var(--blue);
 }
 
 /* ANIMATIONS */

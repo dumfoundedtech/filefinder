@@ -210,6 +210,7 @@ update msg ({ session, dir } as model) =
                                 Session.loadDirs
                                     (Data.Dir.appendDir dir_ session.dirs)
                                     session
+                        , dir = dir_
                         , state = Init
                       }
                     , Ports.toggleModal ()
@@ -377,10 +378,12 @@ viewMoveDir model =
                     , Html.select
                         [ Html.Events.on "change" changeDecoder ]
                         (Html.option [ Html.Attributes.value "root" ]
-                            -- TODO: remove self from list
                             [ Html.text "/root" ]
                             :: (List.map (dirSelect model.session.dirs) <|
-                                    Dict.toList model.session.dirs
+                                    Dict.toList <|
+                                        Dict.filter
+                                            (rejectCurrentDir model.dir.id)
+                                            model.session.dirs
                                )
                         )
                     ]
@@ -506,3 +509,8 @@ viewNewDir name =
                 ]
             ]
         ]
+
+
+rejectCurrentDir : Data.Dir.Id -> String -> Data.Dir.Dir -> Bool
+rejectCurrentDir currentDirId id _ =
+    id /= Data.Dir.idToString currentDirId

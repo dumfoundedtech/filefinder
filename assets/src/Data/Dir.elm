@@ -249,7 +249,8 @@ encodedDirId dirId =
 
 dirPath : Id -> Data -> String
 dirPath id data =
-    dirPathHelp id data ""
+    String.dropRight 1 <|
+        dirPathHelp id data ""
 
 
 dirPathHelp : Id -> Data -> String -> String
@@ -257,7 +258,7 @@ dirPathHelp id data path =
     case id of
         Root ->
             if String.isEmpty path then
-                "/root"
+                "/root/"
 
             else
                 "/root/" ++ path

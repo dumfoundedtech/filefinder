@@ -141,17 +141,18 @@ update msg ({ file } as model) =
 
         GotUpdate result ->
             case model.state of
-                MoveFile _ ->
+                MoveFile dirId ->
                     case result of
                         Ok file_ ->
                             ( { model
                                 | session =
-                                    Session.updateFile file_
-                                        model.session
+                                    Session.updateDirId dirId <|
+                                        Session.updateFile file_
+                                            model.session
                                 , file = file_
                                 , state = Init
                               }
-                            , Cmd.none
+                            , Ports.toggleModal ()
                             )
 
                         Err err ->
@@ -304,7 +305,10 @@ viewMoveFile model =
                         (Html.option [ Html.Attributes.value "root" ]
                             [ Html.text "/root" ]
                             :: (List.map (dirSelect model.session.dirs) <|
-                                    Dict.toList model.session.dirs
+                                    Dict.toList <|
+                                        Dict.filter
+                                            (rejectCurrentDir model.file.dirId)
+                                            model.session.dirs
                                )
                         )
                     ]
@@ -343,3 +347,8 @@ dirSelect : Data.Dir.Data -> ( String, Data.Dir.Dir ) -> Html.Html Msg
 dirSelect data ( id, dir ) =
     Html.option [ Html.Attributes.value id ]
         [ Html.text <| Data.Dir.dirPath dir.id data ]
+
+
+rejectCurrentDir : Data.Dir.Id -> String -> Data.Dir.Dir -> Bool
+rejectCurrentDir currentDirId id _ =
+    id /= Data.Dir.idToString currentDirId
