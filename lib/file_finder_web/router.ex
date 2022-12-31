@@ -51,6 +51,7 @@ defmodule FileFinderWeb.Router do
 
     get "/shop/dirs/root/files", FileController, :root_shop_files
     get "/shop/dirs/:dir_id/files", FileController, :dir_shop_files
+    post "/shop/dirs/:dir_id/files", FileController, :create_shop_file
     patch "/files/:id", FileController, :update
     put "/files/:id", FileController, :update
     delete "/files/:id", FileController, :delete

@@ -4,6 +4,7 @@ defmodule FileFinder.Files do
   """
 
   import Ecto.Query, warn: false
+  import File, only: [stat!: 1]
   alias FileFinder.Repo
 
   alias FileFinder.Files.Dir
@@ -217,6 +218,61 @@ defmodule FileFinder.Files do
       # from(f in File, where: f.shop_id == ^shop_id, where: is_nil(f.dir_id))
       # |> Repo.all()
       from(f in File, where: f.shop_id == ^shop_id) |> Repo.all()
+    end
+  end
+
+  alias FileFinder.Shops
+
+  def create_shop_file(shop_id, dir_id, file) do
+    shop = Shops.get_shop!(shop_id)
+    stat = stat!(file.path)
+
+    metadata = %{
+      filesize: "#{stat.size}",
+      filename: file.filename,
+      mimetype: file.content_type
+    }
+
+    require Logger
+
+    case File.create_shopify_file(file.path, "", metadata, shop) do
+      {:ok,
+       %Neuron.Response{
+         body: %{"data" => %{"fileCreate" => %{"files" => [node | _]}}}
+       }} ->
+        create_from_shopify(shop, node, dir_id)
+
+      response ->
+        response
+    end
+  end
+
+  defp create_from_shopify(shop, node, dir_id) do
+    case node["fileStatus"] do
+      "READY" ->
+        attrs = File.attrs_from_shopify_node(node, shop.id)
+
+        if dir_id == "root" do
+          create_file(attrs)
+        else
+          attrs
+          |> Map.merge(%{dir_id: dir_id})
+          |> create_file()
+        end
+
+      "FAILED" ->
+        {:error, :failed}
+
+      _ ->
+        Process.sleep(1000)
+
+        case File.request_shopify_file(node["id"], shop) do
+          {:ok, node_} ->
+            create_from_shopify(shop, node_, dir_id)
+
+          response ->
+            response
+        end
     end
   end
 end

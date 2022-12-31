@@ -1,5 +1,6 @@
 module Screen.App.NewFileModal exposing (Model, Msg, init, update, view)
 
+import Data.File
 import File
 import File.Select
 import Html
@@ -77,10 +78,16 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        GotFiles _ _ ->
+        GotFiles file files ->
             case model.state of
                 Init _ ->
-                    ( model, Cmd.none )
+                    ( model
+                    , Data.File.create
+                        model.session.token
+                        model.session.dirId
+                        file
+                        GotUpload
+                    )
 
                 _ ->
                     ( model, Cmd.none )

@@ -1,6 +1,7 @@
 module Data.File exposing
     ( Data
     , File
+    , create
     , delete
     , getDirShopFiles
     , getFileBytes
@@ -14,6 +15,7 @@ import Bytes
 import Bytes.Decode
 import Data.Dir
 import Dict
+import File
 import Http
 import Json.Decode
 import Json.Encode
@@ -173,6 +175,28 @@ getFileBytesResponse tagger =
 
                         Nothing ->
                             Err <| Http.BadBody "unexpected bytes"
+
+
+
+-- CREATE
+
+
+create :
+    String
+    -> Data.Dir.Id
+    -> File.File
+    -> (Result Http.Error () -> msg)
+    -> Cmd msg
+create token dirId file tagger =
+    Api.request token
+        { method = "POST"
+        , headers = []
+        , url = "/shop/dirs/" ++ Data.Dir.idToString dirId ++ "/files"
+        , body = Http.multipartBody [ Http.filePart "file" file ]
+        , expect = Http.expectWhatever tagger
+        , timeout = Nothing
+        , tracker = Nothing
+        }
 
 
 

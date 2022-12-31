@@ -15,6 +15,16 @@ defmodule FileFinderWeb.Api.FileController do
     render(conn, "shop_files.json", shop_files: shop_files)
   end
 
+  def create_shop_file(conn, %{"dir_id" => dir_id, "file" => file}) do
+    case Files.create_shop_file(conn.assigns[:shop_id], dir_id, file) do
+      {:ok, file} ->
+        render(conn, "file.json", file: file)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "error.json", changeset: changeset)
+    end
+  end
+
   def update(conn, %{"id" => id, "file" => file_params}) do
     file = Files.get_file!(id)
 
