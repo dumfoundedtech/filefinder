@@ -1,6 +1,7 @@
 module Data.File exposing
     ( Data
     , File
+    , addFile
     , create
     , delete
     , getDirShopFiles
@@ -43,6 +44,11 @@ type alias Data =
 initData : Data
 initData =
     Dict.empty
+
+
+addFile : File -> Data -> Data
+addFile file =
+    Dict.insert file.id file
 
 
 mergeData : Data -> Data -> Data
@@ -185,7 +191,7 @@ create :
     String
     -> Data.Dir.Id
     -> File.File
-    -> (Result Http.Error () -> msg)
+    -> (Result Http.Error File -> msg)
     -> Cmd msg
 create token dirId file tagger =
     Api.request token
@@ -193,7 +199,7 @@ create token dirId file tagger =
         , headers = []
         , url = "/shop/dirs/" ++ Data.Dir.idToString dirId ++ "/files"
         , body = Http.multipartBody [ Http.filePart "file" file ]
-        , expect = Http.expectWhatever tagger
+        , expect = Http.expectJson tagger decoder
         , timeout = Nothing
         , tracker = Nothing
         }

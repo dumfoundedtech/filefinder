@@ -392,7 +392,7 @@ button {
 #app #modal-rename-item button#modal-rename-item-confirm-action,
 #app #modal-move-item button#modal-move-confirm-action,
 #app #modal-create-item button#modal-create-item-confirm-action,
-#app #modal-upload button#modal-upload-input-select-files-action,
+#app #modal-upload button#modal-upload-input-select-file-action,
 #app #modal-upload button#modal-upload-upload-action {
   border-color: var(--blue);
   color: var(--blue);
@@ -401,10 +401,14 @@ button {
 #app #modal-rename-item button#modal-rename-item-confirm-action:hover,
 #app #modal-move-item button#modal-move-confirm-action:hover,
 #app #modal-create-item button#modal-create-item-confirm-action:hover,
-#app #modal-upload button#modal-upload-input-select-files-action:hover,
+#app #modal-upload button#modal-upload-input-select-file-action:hover,
 #app #modal-upload button#modal-upload-upload-action:hover {
   background: var(--blue);
   color: var(--white);
+}
+
+#app #modal-upload button#modal-upload-input-select-file-action {
+  background: transparent;
 }
 
 #app #modal-confirm,
@@ -464,12 +468,13 @@ button {
   padding: 1rem;
 }
 
-#app #modal-upload button#modal-upload-input-select-files-action {
+#app #modal-upload button#modal-upload-input-select-file-action {
   width: 80%;
 }
 
-#app div#modal-upload-input-select-files {
+#app div#modal-upload-input-select-file {
   align-items: center;
+  background-size: cover;
   border-radius: 0.5rem;
   border: 2px dotted var(--blue);
   display: flex;
@@ -479,9 +484,8 @@ button {
   margin-top: 2rem;
 }
 
-#app #modal-upload div.modal-upload-input-select-files-hover {
-  background: var(--transparent-blue);
-  border: 2px solid var(--blue);
+#app div#modal-upload-waiting-message {
+  font-family: var(--paragraph-font);
 }
 
 /* ANIMATIONS */

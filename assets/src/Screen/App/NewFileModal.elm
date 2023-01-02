@@ -10,6 +10,7 @@ import Http
 import Json.Decode
 import Ports
 import Session
+import Task
 
 
 
@@ -18,12 +19,14 @@ import Session
 
 type alias Model =
     { session : Session.Session
+    , file : Maybe File.File
+    , fileUrl : Maybe String
     , state : State
     }
 
 
 type State
-    = Init Bool
+    = Init
     | Waiting
     | Error Http.Error
 
@@ -31,7 +34,9 @@ type State
 init : Session.Session -> ( Model, Cmd Msg )
 init session =
     ( { session = session
-      , state = Init False
+      , file = Nothing
+      , fileUrl = Nothing
+      , state = Init
       }
     , Ports.toggleModal ()
     )
@@ -42,59 +47,41 @@ init session =
 
 
 type Msg
-    = ClickSelectFiles
-    | DragEnter
-    | DragLeave
-    | GotFiles File.File (List File.File)
+    = ClickSelectFile
+    | GotFile File.File
+    | GotFileUrl String
     | ClickCancel
     | ClickUpload
-    | GotUpload (Result Http.Error ())
+    | GotUpload (Result Http.Error Data.File.File)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ClickSelectFiles ->
+        ClickSelectFile ->
             case model.state of
-                Init _ ->
-                    ( model, File.Select.files [ "*/*" ] GotFiles )
+                Init ->
+                    ( model, File.Select.file [ "*/*" ] GotFile )
 
                 _ ->
                     ( model, Cmd.none )
 
-        DragEnter ->
+        GotFile file ->
             case model.state of
-                Init _ ->
-                    ( { model | state = Init True }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        DragLeave ->
-            case model.state of
-                Init _ ->
-                    ( { model | state = Init False }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        GotFiles file files ->
-            case model.state of
-                Init _ ->
-                    ( model
-                    , Data.File.create
-                        model.session.token
-                        model.session.dirId
-                        file
-                        GotUpload
+                Init ->
+                    ( { model | file = Just file }
+                    , Task.perform GotFileUrl <| File.toUrl file
                     )
 
                 _ ->
                     ( model, Cmd.none )
 
+        GotFileUrl url ->
+            ( { model | fileUrl = Just url }, Cmd.none )
+
         ClickCancel ->
             case model.state of
-                Init _ ->
+                Init ->
                     ( model, Ports.toggleModal () )
 
                 _ ->
@@ -102,17 +89,38 @@ update msg model =
 
         ClickUpload ->
             case model.state of
-                Init _ ->
-                    ( model, Cmd.none )
+                Init ->
+                    case model.file of
+                        Just file ->
+                            ( { model | state = Waiting }
+                            , Data.File.create
+                                model.session.token
+                                model.session.dirId
+                                file
+                                GotUpload
+                            )
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         GotUpload result ->
             case result of
-                Ok _ ->
-                    -- TODO: handle result
-                    ( model, Cmd.none )
+                Ok file ->
+                    let
+                        session =
+                            model.session
+                    in
+                    ( { model
+                        | session =
+                            Session.loadFiles
+                                (Data.File.addFile file session.files)
+                                session
+                      }
+                    , Ports.toggleModal ()
+                    )
 
                 Err err ->
                     ( { model | state = Error err }, Cmd.none )
@@ -125,44 +133,38 @@ update msg model =
 view : Model -> Html.Html Msg
 view model =
     case model.state of
-        Init hover ->
+        Init ->
+            let
+                maybeBackgroundImage =
+                    case model.fileUrl of
+                        Just fileUrl ->
+                            [ Html.Attributes.style "background-image" <|
+                                "url("
+                                    ++ fileUrl
+                                    ++ ")"
+                            ]
+
+                        Nothing ->
+                            []
+            in
             Html.div [ Html.Attributes.id "modal-content" ]
                 [ Html.div [ Html.Attributes.id "modal-banner" ] []
-                , Html.form
+                , Html.div
                     [ Html.Attributes.id "modal-upload" ]
                     [ Html.div [ Html.Attributes.id "modal-upload-input" ]
-                        [ Html.text "Upload files"
+                        [ Html.text "Upload file"
                         , Html.div
-                            [ Html.Attributes.id
-                                "modal-upload-input-select-files"
-                            , Html.Attributes.class
-                                (if hover then
-                                    "modal-upload-input-select-files-hover"
-
-                                 else
-                                    ""
-                                )
-                            , Html.Events.preventDefaultOn "dragenter" <|
-                                Json.Decode.succeed ( DragEnter, True )
-                            , Html.Events.preventDefaultOn "dragover" <|
-                                Json.Decode.succeed ( DragEnter, True )
-                            , Html.Events.preventDefaultOn "dragleave" <|
-                                Json.Decode.succeed ( DragLeave, True )
-                            , Html.Events.preventDefaultOn "drop" <|
-                                Json.Decode.map (\msg -> ( msg, True )) <|
-                                    Json.Decode.at [ "dataTransfer", "files" ]
-                                        (Json.Decode.oneOrMore GotFiles
-                                            File.decoder
-                                        )
-                            ]
+                            (Html.Attributes.id "modal-upload-input-select-file"
+                                :: maybeBackgroundImage
+                            )
                             [ Html.button
                                 [ Html.Attributes.id
-                                    "modal-upload-input-select-files-action"
+                                    "modal-upload-input-select-file-action"
                                 , Html.Events.preventDefaultOn "click" <|
                                     Json.Decode.succeed
-                                        ( ClickSelectFiles, True )
+                                        ( ClickSelectFile, True )
                                 ]
-                                [ Html.text "Select files" ]
+                                [ Html.text "Select file" ]
                             ]
                         ]
                     , Html.div [ Html.Attributes.id "modal-upload-actions" ]
@@ -179,7 +181,17 @@ view model =
                 ]
 
         Waiting ->
-            Html.div [] []
+            Html.div [ Html.Attributes.id "modal-content" ]
+                [ Html.div [ Html.Attributes.id "modal-banner" ] []
+                , Html.div
+                    [ Html.Attributes.id "modal-upload" ]
+                    [ Html.div
+                        [ Html.Attributes.id "modal-upload-waiting-message"
+                        , Html.Attributes.class "pulsate"
+                        ]
+                        [ Html.text "Uploading..." ]
+                    ]
+                ]
 
         Error err ->
             -- TODO: finish error view
