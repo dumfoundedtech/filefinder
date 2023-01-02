@@ -300,7 +300,8 @@ button {
   text-align: center;
 }
 
-#app #modal-item-wrap {
+#app #modal-item-wrap,
+#app #modal-error {
   align-items: center;
   display: flex;
   flex-direction: column;

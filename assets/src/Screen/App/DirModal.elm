@@ -10,6 +10,7 @@ import Http
 import Icons
 import Json.Decode
 import Ports
+import Screen.App.Modal
 import Session
 import Task
 
@@ -262,25 +263,7 @@ view model =
             viewNewDir name
 
         Error err ->
-            let
-                message =
-                    case err of
-                        Http.BadUrl url ->
-                            url ++ " is invalid"
-
-                        Http.Timeout ->
-                            "Hit network timeout"
-
-                        Http.NetworkError ->
-                            "Hit network error"
-
-                        Http.BadStatus code ->
-                            String.fromInt code ++ " status code"
-
-                        Http.BadBody message_ ->
-                            message_
-            in
-            Html.pre [] [ Html.text message ]
+            Screen.App.Modal.viewError err
 
 
 viewInit : Model -> Html.Html Msg

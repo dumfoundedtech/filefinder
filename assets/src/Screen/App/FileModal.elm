@@ -11,6 +11,7 @@ import Html.Events
 import Http
 import Json.Decode
 import Ports
+import Screen.App.Modal
 import Session
 
 
@@ -216,26 +217,7 @@ view model =
                 ]
 
         Error err ->
-            -- TODO: finish error view
-            let
-                message =
-                    case err of
-                        Http.BadUrl url ->
-                            url ++ " is invalid"
-
-                        Http.Timeout ->
-                            "Hit network timeout"
-
-                        Http.NetworkError ->
-                            "Hit network error"
-
-                        Http.BadStatus code ->
-                            String.fromInt code ++ " status code"
-
-                        Http.BadBody message_ ->
-                            message_
-            in
-            Html.pre [] [ Html.text message ]
+            Screen.App.Modal.viewError err
 
 
 viewInit : Model -> Html.Html Msg
