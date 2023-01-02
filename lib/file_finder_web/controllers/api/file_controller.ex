@@ -39,21 +39,17 @@ defmodule FileFinderWeb.Api.FileController do
 
   def delete(conn, %{"id" => id}) do
     file = Files.get_file!(id)
+    shop = Shops.get_shop!(conn.assigns[:shop_id])
 
-    case Files.delete_file(file) do
-      {:ok, _} ->
-        shop = Shops.get_shop!(conn.assigns[:shop_id])
+    with {:ok, _} <- Files.delete_file(file),
+         {:ok, _} <- File.delete_shopify_file(file.shopify_id, shop) do
+      render(conn, "file.json", file: file)
+    else
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "error.json", changeset: changeset)
 
-        with {:ok, _} <- Files.delete_file(file),
-             {:ok, _} <- File.delete_shopify_file(file.shopify_id, shop) do
-          render(conn, "file.json", file: file)
-        else
-          {:error, %Ecto.Changeset{} = changeset} ->
-            render(conn, "error.json", changeset: changeset)
-
-          {:error, error} ->
-            render(conn, "error.json", error)
-        end
+      {:error, error} ->
+        render(conn, "error.json", error)
     end
   end
 end

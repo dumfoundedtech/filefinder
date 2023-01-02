@@ -170,10 +170,8 @@ update msg ({ file } as model) =
                                 | session =
                                     Session.removeFile file_
                                         model.session
-                                , state = Init
-                                , message = "File deleted"
                               }
-                            , Cmd.none
+                            , Ports.toggleModal ()
                             )
 
                         Err err ->
@@ -210,6 +208,7 @@ view model =
                             [ Html.text "Cancel" ]
                         , Html.button
                             [ Html.Attributes.id "modal-confirm-delete-action"
+                            , Html.Events.onClick ClickConfirm
                             ]
                             [ Html.text "Delete" ]
                         ]
