@@ -46,7 +46,8 @@ init session =
 
 
 type Msg
-    = ClickNewFolder
+    = ClickBreadcrumb Data.Dir.Dir
+    | ClickNewFolder
     | ClickUploadFile
     | ClickDir Data.Dir.Dir
     | DoubleClickDir Data.Dir.Dir
@@ -60,6 +61,11 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ session } as model) =
     case msg of
+        ClickBreadcrumb dir ->
+            ( { model | session = Session.updateDirId dir.id session }
+            , Cmd.none
+            )
+
         ClickNewFolder ->
             routeDirModal model
                 (Screen.App.DirModal.init session Nothing)
@@ -193,13 +199,37 @@ viewMain model =
         )
 
 
-viewInfoBar : Model -> Html.Html msg
+viewInfoBar : Model -> Html.Html Msg
 viewInfoBar model =
-    Html.div [ Html.Attributes.id "info-bar" ]
-        [ Html.text <|
-            Data.Dir.dirPath model.session.dirId model.session.dirs
-                ++ " directory"
-        ]
+    let
+        dirs =
+            Data.Dir.lineage model.session.dirId model.session.dirs
+
+        seperator =
+            Html.text "/"
+
+        toBreadcrumb dir =
+            Html.a
+                [ Html.Attributes.class "breadcrumb"
+                , Html.Attributes.href "#"
+                , Html.Events.preventDefaultOn "click" <|
+                    Json.Decode.succeed ( ClickBreadcrumb dir, True )
+                ]
+                [ Html.text dir.name ]
+
+        breadCrumbs =
+            case List.reverse dirs of
+                h :: t ->
+                    List.intersperse seperator <|
+                        List.reverse <|
+                            Html.span [ Html.Attributes.class "breadcrumb" ]
+                                [ Html.text h.name ]
+                                :: List.map toBreadcrumb t
+
+                [] ->
+                    []
+    in
+    Html.div [ Html.Attributes.id "info-bar" ] (seperator :: breadCrumbs)
 
 
 viewItem : Html.Html Msg -> Html.Html Msg

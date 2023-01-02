@@ -12,6 +12,7 @@ module Data.Dir exposing
     , idToString
     , initData
     , initId
+    , lineage
     , mergeData
     , optionalIdDecoder
     , removeDir
@@ -271,3 +272,29 @@ dirPathHelp id data path =
 
                 Nothing ->
                     ""
+
+
+
+-- LINEAGE
+
+
+lineage : Id -> Data -> List Dir
+lineage id data =
+    lineageHelp id data []
+
+
+lineageHelp : Id -> Data -> List Dir -> List Dir
+lineageHelp id data dirs =
+    case id of
+        Root ->
+            { id = Root, name = "root", dirId = Sub 0 } :: dirs
+
+        Sub id_ ->
+            case Dict.get (String.fromInt id_) data of
+                Just dir ->
+                    lineageHelp dir.dirId data <|
+                        dir
+                            :: dirs
+
+                Nothing ->
+                    []

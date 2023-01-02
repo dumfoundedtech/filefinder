@@ -172,6 +172,17 @@ button {
   width: 100%;
 }
 
+#app #info-bar a.breadcrumb {
+  border-bottom: 1px solid var(--blue);
+  color: var(--blue);
+  margin: 0 0.25rem;
+  text-decoration: none;
+}
+
+#app #info-bar span.breadcrumb {
+  margin-left: 0.25rem;
+}
+
 #app #footer {
   background-color: var(--blue);
   bottom: 0;
