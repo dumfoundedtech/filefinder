@@ -1,7 +1,8 @@
 # TODO
 
 - [x] Sync files
-- [ ] Breadcrumb links
+- [x] Breadcrumb links
 - [x] Finish file upload
 - [x] Finish file delete
 - [ ] Loading issues?
+- [ ] Header and info-bar static
