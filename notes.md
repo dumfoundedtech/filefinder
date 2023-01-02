@@ -1,7 +1,7 @@
 # TODO
 
-- [ ] Sync files
+- [x] Sync files
 - [ ] Breadcrumb links
-- [ ] Finish file upload
-- [ ] Finish file delete
+- [x] Finish file upload
+- [x] Finish file delete
 - [ ] Loading issues?
