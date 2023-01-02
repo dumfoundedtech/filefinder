@@ -8,6 +8,7 @@ defmodule FileFinderWeb.MainController do
       shop = FileFinder.Shops.get_shop!(shop_id)
 
       conn
+      |> assign(:shop_id, shop.id)
       |> assign(:shop_name, shop.name)
       |> assign(:token, Phoenix.Token.sign(conn, "shop_id", shop_id))
       |> render("index.html")

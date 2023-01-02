@@ -6,6 +6,7 @@ defmodule FileFinder.Files.File do
 
   schema "files" do
     field :alt, :string
+    field :mime_type, :string
     field :preview_url, :string
     field :shopify_id, :string
     field :shopify_timestamp, :utc_datetime
@@ -28,6 +29,7 @@ defmodule FileFinder.Files.File do
         :type,
         :alt,
         :preview_url,
+        :mime_type,
         :shopify_timestamp,
         :dir_id,
         :shop_id
@@ -39,6 +41,7 @@ defmodule FileFinder.Files.File do
       :url,
       :type,
       :preview_url,
+      :mime_type,
       :shopify_timestamp,
       :shop_id
     ])
@@ -74,6 +77,9 @@ defmodule FileFinder.Files.File do
       alt
       createdAt
       fileStatus
+      id
+      mimeType
+      originalFileSize
       preview {
         image {
           url
@@ -85,8 +91,13 @@ defmodule FileFinder.Files.File do
       alt
       createdAt
       fileStatus
+      id
       image {
         url
+      }
+      mimeType
+      originalSource {
+        fileSize
       }
       preview {
         image {
@@ -98,7 +109,10 @@ defmodule FileFinder.Files.File do
       alt
       createdAt
       fileStatus
+      id
       originalSource {
+        fileSize
+        mimeType
         url
       }
       preview {
@@ -205,36 +219,14 @@ defmodule FileFinder.Files.File do
     case request_shopify_file(shopify_id, shop) do
       {:ok, node} ->
         file = Repo.get_by(__MODULE__, shopify_id: shopify_id) || %__MODULE__{}
-
-        {type, url} =
-          case node["__typename"] do
-            "MediaImage" ->
-              {:image, node["image"]["url"]}
-
-            "Video" ->
-              {:video, node["originalSource"]["url"]}
-
-            _ ->
-              {:file, node["url"]}
-          end
-
-        {:ok,
-         changeset(file, %{
-           "alt" => node["alt"],
-           "preview_url" => node["preview"]["image"]["url"],
-           "shopify_id" => shopify_id,
-           "shopify_timestamp" => node["createdAt"],
-           "type" => type,
-           "url" => url,
-           "shop_id" => shop.id
-         })}
+        {:ok, changeset(file, attrs_from_shopify_node(node, shop.id))}
 
       {:error, error} ->
         {:error, error}
     end
   end
 
-  defp request_shopify_file(shopify_id, shop) do
+  def request_shopify_file(shopify_id, shop) do
     case send_shopify_request(@shopify_file_query, %{id: shopify_id}, shop) do
       {:ok, %Neuron.Response{body: %{"data" => %{"node" => node}}}} ->
         {:ok, node}
@@ -242,6 +234,43 @@ defmodule FileFinder.Files.File do
       {:error, error} ->
         {:error, error}
     end
+  end
+
+  def attrs_from_shopify_node(node, shop_id) do
+    metadata =
+      case node["__typename"] do
+        "MediaImage" ->
+          %{
+            mime_type: node["mimeType"],
+            type: :image,
+            url: node["image"]["url"]
+          }
+
+        "Video" ->
+          %{
+            mime_type: node["originalSource"]["mimeType"],
+            type: :video,
+            url: node["originalSource"]["url"]
+          }
+
+        _ ->
+          %{
+            mime_type: node["mimeType"],
+            type: :file,
+            url: node["url"]
+          }
+      end
+
+    %{
+      "alt" => node["alt"],
+      "mime_type" => metadata.mime_type,
+      "preview_url" => node["preview"]["image"]["url"],
+      "shop_id" => shop_id,
+      "shopify_id" => node["id"],
+      "shopify_timestamp" => node["createdAt"],
+      "type" => metadata.type,
+      "url" => metadata.url
+    }
   end
 
   @doc """

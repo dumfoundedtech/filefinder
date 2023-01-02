@@ -42,14 +42,17 @@ defmodule FileFinderWeb.Router do
   scope "/api", FileFinderWeb.Api, as: :api do
     pipe_through [:api, :authenticate_shop]
 
+    get "/shop/sync", ShopController, :sync
     get "/shop/dirs/root/dirs", DirController, :root_shop_dirs
     get "/shop/dirs/:dir_id/dirs", DirController, :dir_shop_dirs
+    post "/dirs", DirController, :create
     patch "/dirs/:id", DirController, :update
     put "/dirs/:id", DirController, :update
     delete "/dirs/:id", DirController, :delete
 
     get "/shop/dirs/root/files", FileController, :root_shop_files
     get "/shop/dirs/:dir_id/files", FileController, :dir_shop_files
+    post "/shop/dirs/:dir_id/files", FileController, :create_shop_file
     patch "/files/:id", FileController, :update
     put "/files/:id", FileController, :update
     delete "/files/:id", FileController, :delete

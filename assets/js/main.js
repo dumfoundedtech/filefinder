@@ -8,4 +8,13 @@ const app = Elm.Main.init({
   flags: JSON.parse(node.dataset.flags),
 });
 
-app.ports.copyToClipboard.subscribe((text) => console.log(text));
+app.ports.copyToClipboard.subscribe((text) =>
+  navigator.clipboard.writeText(text)
+);
+
+app.ports.toggleModal.subscribe(
+  () => (
+    (modal = document.getElementById("modal")),
+    modal.open ? modal.close() : modal.showModal()
+  )
+);

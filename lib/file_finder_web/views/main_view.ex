@@ -4,6 +4,7 @@ defmodule FileFinderWeb.MainView do
   def flags(conn) do
     %{
       csrf_token: Plug.CSRFProtection.get_csrf_token(),
+      shop_id: conn.assigns[:shop_id],
       shop_name: conn.assigns[:shop_name],
       token: conn.assigns[:token]
     }

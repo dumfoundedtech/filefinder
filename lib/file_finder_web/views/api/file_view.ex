@@ -12,13 +12,20 @@ defmodule FileFinderWeb.Api.FileView do
       |> Map.fetch!(:path)
       |> Path.basename()
       |> String.split(".")
-      |> List.first()
+      |> Enum.reverse()
+      |> Kernel.then(fn [h | t] ->
+        Enum.reduce(t, h |> String.split("?") |> List.first(), fn part, acc ->
+          "#{part}.#{acc}"
+        end)
+      end)
 
     %{
       id: file.id,
+      type: file.type,
       name: name,
-      preview_url: file.preview_url,
       url: file.url,
+      preview_url: file.preview_url,
+      mime_type: file.mime_type,
       dir_id: file.dir_id
     }
   end

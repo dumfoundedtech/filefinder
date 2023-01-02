@@ -13,6 +13,16 @@ defmodule FileFinderWeb.Api.DirController do
     render(conn, "shop_dirs.json", shop_dirs: shop_dirs)
   end
 
+  def create(conn, %{"dir" => dir_params}) do
+    case Files.create_dir(dir_params) do
+      {:ok, dir} ->
+        render(conn, "dir.json", dir: dir)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "error.json", changeset: changeset)
+    end
+  end
+
   def update(conn, %{"id" => id, "dir" => dir_params}) do
     dir = Files.get_dir!(id)
 

@@ -44,7 +44,7 @@ config :ueberauth, Ueberauth,
   ]
 
 # Neuron GraphQL client
-config :neuron, FileFinder.Files.File, endpoint: "/admin/api/2022-04/graphql.json"
+config :neuron, FileFinder.Files.File, endpoint: "/admin/api/2022-10/graphql.json"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

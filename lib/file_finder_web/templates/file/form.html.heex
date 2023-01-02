@@ -25,6 +25,14 @@
   <%= text_input f, :preview_url %>
   <%= error_tag f, :preview_url %>
 
+  <%= label f, :mime_type %>
+  <%= text_input f, :mime_type %>
+  <%= error_tag f, :mime_type %>
+
+  <%= label f, :bytes %>
+  <%= number_input f, :bytes %>
+  <%= error_tag f, :bytes %>
+
   <%= label f, :shopify_timestamp %>
   <%= datetime_select f, :shopify_timestamp %>
   <%= error_tag f, :shopify_timestamp %>
