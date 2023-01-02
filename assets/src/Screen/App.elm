@@ -290,14 +290,20 @@ viewFooter =
         [ Html.div [ Html.Attributes.id "footer-links" ]
             [ Html.a
                 [ Html.Attributes.class "footer-link"
-                , Html.Attributes.href "#"
+                , Html.Attributes.href "https://airtable.com/shrgO1BM953fSeUcA"
+                , Html.Attributes.target "_blank"
                 ]
-                [ Html.text "feedback" ]
+                [ Html.text "feedback"
+                , Icons.externalLink [ "external-link" ]
+                ]
             , Html.a
                 [ Html.Attributes.class "footer-link"
-                , Html.Attributes.href "#"
+                , Html.Attributes.href "https://airtable.com/shrBOnyZE2bORcTJy"
+                , Html.Attributes.target "_blank"
                 ]
-                [ Html.text "support" ]
+                [ Html.text "support"
+                , Icons.externalLink [ "external-link" ]
+                ]
             ]
         , Html.div [ Html.Attributes.id "footer-actions" ]
             [ Html.button [ Html.Events.onClick ClickNewFolder ]
