@@ -78,6 +78,7 @@ button {
   display: flex;
   font-family: var(--heading-font);
   height: 5rem;
+  justify-content: space-between;
   padding-left: 2rem;
   padding-right: 2rem;
 }
@@ -90,6 +91,17 @@ button {
 #app #header h1 {
   font-size: 2.25rem;
   letter-spacing: 0.05em;
+}
+
+#app #header a#shop-link {
+  font-family: var(--paragraph-font);
+  font-size: 0.875rem;
+}
+
+#app #header svg.external-link {
+  height: 1em;
+  margin-left: 0.25rem;
+  width: 1em;
 }
 
 #app #main {

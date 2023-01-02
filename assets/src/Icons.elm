@@ -1,4 +1,4 @@
-module Icons exposing (add, check, close, cloud, dir, left, right)
+module Icons exposing (add, check, close, cloud, dir, externalLink, left, right)
 
 import Html
 import Svg exposing (..)
@@ -242,6 +242,25 @@ right classes =
                     , "0"
                     , "1-1.4-1.4l3.29-3.3-3.3-3.3z"
                     ]
+            ]
+            []
+        ]
+
+
+
+-- EXTERNAL LINK
+
+
+externalLink : List String -> Html.Html msg
+externalLink classes =
+    svg [ class <| String.join " " classes, viewBox "0 0 24 24" ]
+        [ Svg.path
+            [ d "M10 4L7 4C4 4 4 7 4 7L4 17C4 17 4 20 7 20L17 20C20 20 20 17 20 17L20 14M14 4L20 4L20 10M8 16L20 4"
+            , fill "none"
+            , stroke "currentColor"
+            , strokeLinecap "round"
+            , strokeLinejoin "round"
+            , strokeWidth "2"
             ]
             []
         ]

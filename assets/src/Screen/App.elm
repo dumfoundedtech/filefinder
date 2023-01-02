@@ -162,18 +162,29 @@ routeNewFileModal model =
 view : Model -> Html.Html Msg
 view model =
     Html.section [ Html.Attributes.id "app", Html.Attributes.class "fade-in" ]
-        [ viewHeader
+        [ viewHeader model
         , viewMain model
         , viewFooter
         , viewModal model
         ]
 
 
-viewHeader : Html.Html msg
-viewHeader =
+viewHeader : Model -> Html.Html msg
+viewHeader model =
     Html.header [ Html.Attributes.id "header" ]
         [ Html.h1 []
             [ Html.a [ Html.Attributes.href "/" ] [ Html.text "File Finder" ] ]
+        , Html.a
+            [ Html.Attributes.id "shop-link"
+            , Html.Attributes.href <|
+                "https://"
+                    ++ model.session.shopName
+                    ++ "/admin"
+            , Html.Attributes.target "_blank"
+            ]
+            [ Html.text model.session.shopName
+            , Icons.externalLink [ "external-link" ]
+            ]
         ]
 
 
