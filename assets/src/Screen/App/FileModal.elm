@@ -142,14 +142,12 @@ update msg ({ file } as model) =
 
         GotUpdate result ->
             case model.state of
-                MoveFile dirId ->
+                MoveFile _ ->
                     case result of
                         Ok file_ ->
                             ( { model
                                 | session =
-                                    Session.updateDirId dirId <|
-                                        Session.updateFile file_
-                                            model.session
+                                    Session.updateFile file_ model.session
                                 , file = file_
                                 , state = Init
                               }

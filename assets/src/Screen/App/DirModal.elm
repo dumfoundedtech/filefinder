@@ -207,10 +207,9 @@ update msg ({ session, dir } as model) =
                 Ok dir_ ->
                     ( { model
                         | session =
-                            Session.updateDirId dir_.dirId <|
-                                Session.loadDirs
-                                    (Data.Dir.appendDir dir_ session.dirs)
-                                    session
+                            Session.loadDirs
+                                (Data.Dir.appendDir dir_ session.dirs)
+                                session
                         , dir = dir_
                         , state = Init
                       }

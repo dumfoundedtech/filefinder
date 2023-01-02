@@ -211,6 +211,17 @@ create token dirId file tagger =
 
 update : String -> File -> (Result Http.Error File -> msg) -> Cmd msg
 update token file tagger =
+    let
+        dirId =
+            case Data.Dir.idToString file.dirId of
+                "root" ->
+                    Json.Encode.null
+
+                dirId_ ->
+                    Json.Encode.int <|
+                        Maybe.withDefault 0 <|
+                            String.toInt dirId_
+    in
     Api.request token
         { method = "PATCH"
         , headers = []
@@ -218,17 +229,7 @@ update token file tagger =
         , body =
             Http.jsonBody <|
                 Json.Encode.object
-                    [ ( "file"
-                      , Json.Encode.object
-                            [ ( "dir_id"
-                              , Json.Encode.int <|
-                                    Maybe.withDefault 0 <|
-                                        String.toInt <|
-                                            Data.Dir.idToString file.dirId
-                              )
-                            ]
-                      )
-                    ]
+                    [ ( "file", Json.Encode.object [ ( "dir_id", dirId ) ] ) ]
         , expect = Http.expectJson tagger decoder
         , timeout = Nothing
         , tracker = Nothing

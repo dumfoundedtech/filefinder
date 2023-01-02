@@ -238,7 +238,7 @@ encodedDirId : Id -> List ( String, Json.Encode.Value )
 encodedDirId dirId =
     case dirId of
         Root ->
-            []
+            [ ( "dir_id", Json.Encode.null ) ]
 
         Sub id ->
             [ ( "dir_id", Json.Encode.int id ) ]
