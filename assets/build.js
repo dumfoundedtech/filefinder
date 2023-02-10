@@ -5,11 +5,15 @@ const args = process.argv.slice(2);
 const watch = args.includes("--watch");
 const deploy = args.includes("--deploy");
 
-const loader = {
-  // Add loaders for images/fonts/etc, e.g. { '.svg': 'file' }
-};
+const loader = {};
 
-const plugins = [ElmPlugin({ debug: true, clearOnWatch: true })];
+const elmOpts = watch
+  ? { debug: true, clearOnWatch: true }
+  : deploy
+  ? { optimize: true }
+  : {};
+
+const plugins = [ElmPlugin(elmOpts)];
 
 let opts = {
   entryPoints: ["js/app.js", "js/main.js"],
