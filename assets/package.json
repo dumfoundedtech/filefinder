@@ -10,6 +10,6 @@
     "phoenix_live_view": "file:../deps/phoenix_live_view"
   },
   "scripts": {
-    "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild"
+    "deploy": "elm-tooling install && cd .. && mix assets.deploy && rm -f _build/esbuild"
   }
 }
