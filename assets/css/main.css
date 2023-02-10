@@ -514,6 +514,8 @@ button {
 
 #app div#modal-upload-input-select-file {
   align-items: center;
+  background-position: center;
+  background-repeat: no-repeat;
   background-size: cover;
   border-radius: 0.5rem;
   border: 2px dotted var(--blue);
