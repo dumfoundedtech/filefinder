@@ -13,7 +13,7 @@ defmodule FileFinderWeb.MainController do
       |> assign(:token, Phoenix.Token.sign(conn, "shop_id", shop_id))
       |> render("index.html")
     else
-      raise FileFinderWeb.AuthError, "Unauthorized"
+      redirect(conn, external: "https://filefinderapp.com")
     end
   end
 end
