@@ -166,6 +166,9 @@ update msg ({ session, dir } as model) =
                 ConfirmDelete ->
                     ( { model | state = Init }, Cmd.none )
 
+                NewDir _ ->
+                    ( { model | state = Init }, Ports.toggleModal () )
+
                 _ ->
                     ( model, Cmd.none )
 
