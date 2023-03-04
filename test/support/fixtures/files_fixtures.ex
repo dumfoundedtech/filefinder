@@ -43,7 +43,6 @@ defmodule FileFinder.FilesFixtures do
       attrs
       |> Enum.into(%{
         alt: "some alt",
-        bytes: 5,
         mime_type: "text/plain",
         preview_url: "some preview_url",
         shop_id: shop.id,

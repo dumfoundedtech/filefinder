@@ -58,21 +58,21 @@ defmodule FileFinder.ShopsTest do
       assert %Ecto.Changeset{} = Shops.change_shop(shop)
     end
 
-    test "get_or_create_shop/1 returns the a tuple with the shop" do
+    test "create_or_update_shop/1 returns the a tuple with the shop" do
       shop = shop_fixture()
-      assert Shops.get_or_create_shop(%{name: shop.name}) == {:ok, shop}
+      assert Shops.create_or_update_shop(%{name: shop.name}) == {:ok, shop}
     end
 
-    test "get_or_create_shop/1 with valid data creates a shop" do
+    test "create_or_update_shop/1 with valid data creates a shop" do
       valid_attrs = %{name: "some name", token: "some token"}
 
-      assert {:ok, %Shop{} = shop} = Shops.get_or_create_shop(valid_attrs)
+      assert {:ok, %Shop{} = shop} = Shops.create_or_update_shop(valid_attrs)
       assert shop.name == "some name"
       assert shop.token == "some token"
     end
 
-    test "get_or_create_shop/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Shops.get_or_create_shop(@invalid_attrs)
+    test "create_or_update_shop/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Shops.create_or_update_shop(@invalid_attrs)
     end
   end
 end

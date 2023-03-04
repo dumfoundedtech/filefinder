@@ -89,7 +89,6 @@ defmodule FileFinder.FilesTest do
 
       valid_attrs = %{
         alt: "some alt",
-        bytes: 5,
         mime_type: "text/plain",
         preview_url: "some preview_url",
         shop_id: shop.id,
@@ -101,7 +100,6 @@ defmodule FileFinder.FilesTest do
 
       assert {:ok, %File{} = file} = Files.create_file(valid_attrs)
       assert file.alt == "some alt"
-      assert file.bytes == 5
       assert file.mime_type == "text/plain"
       assert file.preview_url == "some preview_url"
       assert file.shopify_id == "some shopify_id"

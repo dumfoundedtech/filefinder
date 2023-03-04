@@ -7,7 +7,7 @@ defmodule FileFinderWeb.AuthController do
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
     if has_valid_hmac?(conn, params) do
-      case Shops.get_or_create_shop(map_response_to_shop(auth, params)) do
+      case Shops.create_or_update_shop(map_response_to_shop(auth, params)) do
         {:ok, shop} ->
           conn
           |> put_session(:shop_id, shop.id)

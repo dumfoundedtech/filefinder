@@ -107,21 +107,22 @@ defmodule FileFinder.Shops do
 
   ## Examples
 
-      iex> get_or_create_shop(%{name: "Existing shop"})
+      iex> create_or_update_shop(%{name: "Existing shop"})
       {:ok, %Shop{}}
 
-      iex> get_or_create_shop(%{name: "New shop"})
+      iex> create_or_update_shop(%{name: "New shop"})
       {:ok, %Shop{}}
 
-      iex> get_or_create_shop(%{name: ""})
+      iex> create_or_update_shop(%{name: ""})
       {:error, %Ecto.Changeset{}}
 
   """
-  def get_or_create_shop(%{name: name} = attrs \\ %{name: nil}) do
+  def create_or_update_shop(%{name: name} = attrs \\ %{name: nil}) do
     if name do
       shop = Repo.get_by(Shop, name: name)
 
       if shop do
+        update_shop(shop, attrs)
         {:ok, shop}
       else
         create_shop(attrs)
