@@ -233,8 +233,6 @@ defmodule FileFinder.Files do
       mimetype: file.content_type
     }
 
-    require Logger
-
     case File.create_shopify_file(file.path, "", metadata, shop) do
       {:ok,
        %Neuron.Response{
