@@ -131,7 +131,6 @@ defmodule FileFinder.Shops do
     end
   end
 
-  alias FileFinder.Files
   alias FileFinder.Files.File
 
   def sync_shop_files!(id) do
@@ -144,7 +143,7 @@ defmodule FileFinder.Shops do
         if Enum.member?(shopify_ids, file.shopify_id) do
           deleted
         else
-          [Files.delete_file(file) | deleted]
+          [Repo.delete!(file) | deleted]
         end
       end)
 
@@ -159,10 +158,10 @@ defmodule FileFinder.Shops do
           data
 
         changeset.data.id ->
-          Map.merge(data, %{updated: data.updated ++ [Repo.update(changeset)]})
+          Map.merge(data, %{updated: data.updated ++ [Repo.update!(changeset)]})
 
         true ->
-          Map.merge(data, %{inserted: data.inserted ++ [Repo.insert(changeset)]})
+          Map.merge(data, %{inserted: data.inserted ++ [Repo.insert!(changeset)]})
       end
     end)
   end

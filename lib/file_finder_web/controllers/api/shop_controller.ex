@@ -5,6 +5,6 @@ defmodule FileFinderWeb.Api.ShopController do
 
   def sync(conn, _params) do
     results = Shops.sync_shop_files!(conn.assigns[:shop_id])
-    json(conn, results)
+    render(conn, "results.json", results: results)
   end
 end
