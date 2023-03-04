@@ -23,12 +23,14 @@ defmodule FileFinderWeb.Router do
   scope "/", FileFinderWeb do
     pipe_through :browser
 
-    scope "/admin" do
-      pipe_through :admin
-      resources "/dirs", DirController
-      resources "/files", FileController
-      resources "/shops", ShopController
-      get "/", PageController, :index
+    if Mix.env() == :dev do
+      scope "/admin" do
+        pipe_through :admin
+        resources "/dirs", DirController
+        resources "/files", FileController
+        resources "/shops", ShopController
+        get "/", PageController, :index
+      end
     end
 
     scope "/auth" do
