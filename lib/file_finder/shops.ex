@@ -38,6 +38,22 @@ defmodule FileFinder.Shops do
   def get_shop!(id), do: Repo.get!(Shop, id)
 
   @doc """
+  Gets a single shop by name.
+
+  Returns nil if the Shop does not exist.
+
+  ## Examples
+
+      iex> get_shop_by_name!("shop.myshopify.com")
+      %Shop{}
+
+      iex> get_shop_by_name!("")
+      nil
+
+  """
+  def get_shop_by_name(name), do: Repo.get_by(Shop, name: name)
+
+  @doc """
   Creates a shop.
 
   ## Examples
@@ -100,36 +116,6 @@ defmodule FileFinder.Shops do
   """
   def change_shop(%Shop{} = shop, attrs \\ %{}) do
     Shop.changeset(shop, attrs)
-  end
-
-  @doc """
-  Gets a shop by name or creates a shop if no shop is found.
-
-  ## Examples
-
-      iex> create_or_update_shop(%{name: "Existing shop"})
-      {:ok, %Shop{}}
-
-      iex> create_or_update_shop(%{name: "New shop"})
-      {:ok, %Shop{}}
-
-      iex> create_or_update_shop(%{name: ""})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_or_update_shop(%{name: name} = attrs \\ %{name: nil}) do
-    if name do
-      shop = Repo.get_by(Shop, name: name)
-
-      if shop do
-        update_shop(shop, attrs)
-        {:ok, shop}
-      else
-        create_shop(attrs)
-      end
-    else
-      create_shop(attrs)
-    end
   end
 
   alias FileFinder.Files.File
