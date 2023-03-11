@@ -8,11 +8,6 @@ const app = Elm.Main.init({
   flags: JSON.parse(node.dataset.flags),
 });
 
-const getModal = (resolve, reject) =>
-  document.getElementById("modal")
-    ? resolve(document.getElementById("modal"))
-    : setTimeout(getModal, 100, resolve, reject);
-
 app.ports.clearPath.subscribe(() => history.pushState({}, "", "/"));
 
 app.ports.copyToClipboard.subscribe((text) =>
