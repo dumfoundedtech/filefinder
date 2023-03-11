@@ -38,6 +38,7 @@ defmodule FileFinderWeb.Router do
       get "/:provider/callback", AuthController, :callback
     end
 
+    get "/welcome", MainController, :index
     get "/", MainController, :index
   end
 
