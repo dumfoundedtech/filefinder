@@ -23,7 +23,7 @@ defmodule FileFinderWeb.Router do
   scope "/", FileFinderWeb do
     pipe_through :browser
 
-    if Mix.env() == :dev do
+    if Mix.env() in [:dev, :test] do
       scope "/admin" do
         pipe_through :admin
         resources "/dirs", DirController
@@ -38,6 +38,7 @@ defmodule FileFinderWeb.Router do
       get "/:provider/callback", AuthController, :callback
     end
 
+    get "/welcome", MainController, :index
     get "/", MainController, :index
   end
 

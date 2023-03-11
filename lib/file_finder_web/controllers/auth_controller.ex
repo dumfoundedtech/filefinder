@@ -7,14 +7,37 @@ defmodule FileFinderWeb.AuthController do
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
     if has_valid_hmac?(conn, params) do
-      case Shops.create_or_update_shop(map_response_to_shop(auth, params)) do
-        {:ok, shop} ->
-          conn
-          |> put_session(:shop_id, shop.id)
-          |> redirect(to: "/")
+      attrs = map_response_to_shop(auth, params)
+      shop = Shops.get_shop_by_name(attrs.name)
 
-        {:error, _} ->
-          raise FileFinderWeb.Error, "Error creating shop"
+      if shop && shop.token == attrs.token do
+        conn
+        |> put_session(:shop_id, shop.id)
+        |> redirect(to: "/")
+      else
+        if is_nil(shop) do
+          # fresh install
+          case Shops.create_shop(attrs) do
+            {:ok, created} ->
+              conn
+              |> put_session(:shop_id, created.id)
+              |> redirect(to: "/")
+
+            {:error, _} ->
+              raise FileFinderWeb.Error, "Error creating shop"
+          end
+        else
+          # is this a reinstall?
+          case Shops.update_shop(shop, %{token: attrs.token}) do
+            {:ok, updated} ->
+              conn
+              |> put_session(:shop_id, updated.id)
+              |> redirect(to: "/")
+
+            {:error, _} ->
+              raise FileFinderWeb.Error, "Error updating shop token"
+          end
+        end
       end
     else
       raise FileFinderWeb.Error, "Invalid params"
