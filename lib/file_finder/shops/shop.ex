@@ -46,23 +46,6 @@ defmodule FileFinder.Shops.Shop do
       }
     }
 
-    send_shopify_request(@webhook_subscription_create_query, vars, shop)
-  end
-
-  defp send_shopify_request(query, vars, shop) do
-    config = Application.fetch_env!(:neuron, FileFinder.Files.File)
-
-    Neuron.Config.set(url: "https://#{shop.name}" <> config[:endpoint])
-    Neuron.Config.set(connection_opts: config[:connection_opts])
-
-    Neuron.Config.set(
-      headers: [
-        "Content-Type": "application/json",
-        "X-Shopify-Access-Token": shop.token
-      ]
-    )
-
-    Neuron.query(query, vars)
-    |> FileFinder.pass_through_debug_log()
+    Shopify.send_request(@webhook_subscription_create_query, vars, shop)
   end
 end
