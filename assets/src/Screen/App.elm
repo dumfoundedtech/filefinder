@@ -229,12 +229,32 @@ viewMain model =
             List.map Tuple.second <|
                 List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
                     Dict.toList model.session.files
+
+        items =
+            List.map viewDir dirs ++ List.map viewFile files
     in
     Html.main_ [ Html.Attributes.id "main" ]
         (viewInfoBar model
-            :: (List.map viewItem <|
-                    List.map viewDir dirs
-                        ++ List.map viewFile files
+            :: (if List.isEmpty items then
+                    [ Html.div [ Html.Attributes.id "empty-items" ]
+                        [ Html.p [ Html.Attributes.id "empty-items-message" ]
+                            [ Html.text "Let's get started!" ]
+                        , Html.div [ Html.Attributes.id "empty-items-actions" ]
+                            [ Html.button [ Html.Events.onClick ClickNewFolder ]
+                                [ Icons.add [ "button-icon" ]
+                                , Html.text "New Folder"
+                                ]
+                            , Html.button
+                                [ Html.Events.onClick ClickUploadFile ]
+                                [ Icons.cloud [ "button-icon" ]
+                                , Html.text "Upload File"
+                                ]
+                            ]
+                        ]
+                    ]
+
+                else
+                    List.map viewItem items
                )
         )
 
