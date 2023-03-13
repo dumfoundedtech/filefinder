@@ -117,8 +117,58 @@ button {
   padding-bottom: 2rem;
 }
 
-#app #main div.content-wrap {
+#app #main #empty-items {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#app #main #empty-items-message {
+  font-family: var(--paragraph-font);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  margin: 0;
+  padding-bottom: 2rem;
+}
+
+#app #main #empty-items-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+#app #main #empty-items-actions button {
+  background: var(--white);
+  border: 2px solid var(--blue);
+  color: var(--blue);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  margin-right: 2rem;
+  min-width: 12rem;
   padding: 1rem;
+  text-transform: lowercase;
+}
+
+#app #main #empty-items-actions button:last-of-type {
+  margin-right: 0;
+}
+
+#app #main #empty-items-actions button:hover {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
+#app #main #empty-items-actions button:hover svg.button-icon {
+  fill: var(--white);
+}
+
+#app #main #empty-items-actions svg.button-icon {
+  display: inline;
+  fill: var(--blue);
+  margin-right: 0.5rem;
+  vertical-align: bottom;
+  width: 1.5rem;
 }
 
 #app #main div.item-wrap {
@@ -369,7 +419,8 @@ button {
 #app #modal-rename-item button,
 #app #modal-move-item button,
 #app #modal-create-item button,
-#app #modal-upload button {
+#app #modal-upload button,
+#app #welcome-actions button {
   background: var(--white);
   border: 2px solid var(--blue);
   color: var(--blue);
@@ -530,6 +581,51 @@ button {
   font-family: var(--paragraph-font);
 }
 
+/* WELCOME MODAL */
+
+#app #modal-banner.modal-welcome-banner {
+  padding-left: 3rem;
+  text-align: left;
+}
+
+#app #modal-welcome {
+  padding: 2rem 3rem;
+}
+
+#app #modal-welcome h3 {
+  color: var(--blue);
+  font-family: var(--heading-font);
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  line-height: 1.75rem;
+  padding-bottom: 1rem;
+}
+
+#app #modal-welcome p {
+  font-family: var(--paragraph-font);
+  font-size: 1rem;
+  line-height: 1.5rem;
+  margin: 0;
+  max-width: 35em;
+  padding-bottom: 2rem;
+}
+
+#app #modal-welcome .dir-ref {
+  background: var(--transparent-blue);
+  color: var(--blue);
+}
+
+#app #welcome-actions button {
+  background: var(--blue);
+  color: var(--white);
+  width: auto;
+}
+
+#app #welcome-actions button:hover {
+  background: var(--white);
+  color: var(--blue);
+}
+
 /* ANIMATIONS */
 
 .fade-in {
@@ -652,6 +748,20 @@ button {
 
   #app #header h1 {
     font-size: 1rem;
+  }
+
+  #app #main #empty-items-actions {
+    flex-direction: column;
+  }
+
+  #app #main #empty-items-actions button {
+    margin-right: 0;
+    margin-bottom: 1rem;
+    width: 13rem;
+  }
+
+  #app #main #empty-items-actions button:last-of-type {
+    margin-bottom: 0;
   }
 
   #app #footer {

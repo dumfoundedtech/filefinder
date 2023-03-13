@@ -12,6 +12,7 @@ import Ports
 import Screen.App.DirModal
 import Screen.App.FileModal
 import Screen.App.NewFileModal
+import Screen.App.WelcomeModal
 import Session
 
 
@@ -30,15 +31,21 @@ type Modal
     | DirModal Screen.App.DirModal.Model
     | FileModal Screen.App.FileModal.Model
     | NewFileModal Screen.App.NewFileModal.Model
+    | WelcomeModal Screen.App.WelcomeModal.Model
 
 
 init : Session.Session -> ( Model, Cmd Msg )
 init session =
-    ( { session = session
-      , modal = InitModal
-      }
-    , Cmd.none
-    )
+    if session.showWelcome then
+        routeWelcomeModal { session = session, modal = InitModal }
+            (Screen.App.WelcomeModal.init session)
+
+    else
+        ( { session = session
+          , modal = InitModal
+          }
+        , Cmd.none
+        )
 
 
 
@@ -56,6 +63,7 @@ type Msg
     | DirModalMsg Screen.App.DirModal.Msg
     | FileModalMsg Screen.App.FileModal.Msg
     | NewFileModalMsg Screen.App.NewFileModal.Msg
+    | WelcomeModalMsg Screen.App.WelcomeModal.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -118,6 +126,15 @@ update msg ({ session } as model) =
                 _ ->
                     ( model, Cmd.none )
 
+        WelcomeModalMsg msg_ ->
+            case model.modal of
+                WelcomeModal model_ ->
+                    routeWelcomeModal model
+                        (Screen.App.WelcomeModal.update msg_ model_)
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 routeDirModal :
     Model
@@ -153,6 +170,18 @@ routeNewFileModal model =
             { model | modal = NewFileModal model_, session = model_.session }
         )
         (Cmd.map NewFileModalMsg)
+
+
+routeWelcomeModal :
+    Model
+    -> ( Screen.App.WelcomeModal.Model, Cmd Screen.App.WelcomeModal.Msg )
+    -> ( Model, Cmd Msg )
+routeWelcomeModal model =
+    Tuple.mapBoth
+        (\model_ ->
+            { model | modal = WelcomeModal model_, session = model_.session }
+        )
+        (Cmd.map WelcomeModalMsg)
 
 
 
@@ -200,12 +229,32 @@ viewMain model =
             List.map Tuple.second <|
                 List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
                     Dict.toList model.session.files
+
+        items =
+            List.map viewDir dirs ++ List.map viewFile files
     in
     Html.main_ [ Html.Attributes.id "main" ]
         (viewInfoBar model
-            :: (List.map viewItem <|
-                    List.map viewDir dirs
-                        ++ List.map viewFile files
+            :: (if List.isEmpty items then
+                    [ Html.div [ Html.Attributes.id "empty-items" ]
+                        [ Html.p [ Html.Attributes.id "empty-items-message" ]
+                            [ Html.text "Let's get started!" ]
+                        , Html.div [ Html.Attributes.id "empty-items-actions" ]
+                            [ Html.button [ Html.Events.onClick ClickNewFolder ]
+                                [ Icons.add [ "button-icon" ]
+                                , Html.text "New Folder"
+                                ]
+                            , Html.button
+                                [ Html.Events.onClick ClickUploadFile ]
+                                [ Icons.cloud [ "button-icon" ]
+                                , Html.text "Upload File"
+                                ]
+                            ]
+                        ]
+                    ]
+
+                else
+                    List.map viewItem items
                )
         )
 
@@ -345,3 +394,6 @@ viewModalContent model =
 
         NewFileModal model_ ->
             [ Html.map NewFileModalMsg <| Screen.App.NewFileModal.view model_ ]
+
+        WelcomeModal model_ ->
+            [ Html.map WelcomeModalMsg <| Screen.App.WelcomeModal.view model_ ]

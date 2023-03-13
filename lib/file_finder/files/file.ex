@@ -165,7 +165,7 @@ defmodule FileFinder.Files.File do
     }
   """
 
-  @shoify_file_delete_query """
+  @shopify_file_delete_query """
     mutation fileDelete($fileIds: [ID!]!) {
       fileDelete(fileIds: $fileIds) {
         deletedFileIds
@@ -383,10 +383,10 @@ defmodule FileFinder.Files.File do
   """
   def delete_shopify_file(shopify_id, shop) do
     vars = %{
-      filesIds: [shopify_id]
+      fileIds: [shopify_id]
     }
 
-    send_shopify_request(@shoify_file_delete_query, vars, shop)
+    send_shopify_request(@shopify_file_delete_query, vars, shop)
   end
 
   defp send_shopify_request(query, vars, shop) do

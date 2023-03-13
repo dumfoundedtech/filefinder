@@ -1,6 +1,9 @@
-port module Ports exposing (copyToClipboard, toggleModal)
+port module Ports exposing (clearPath, copyToClipboard, toggleModal)
 
 -- PORTS
+
+
+port clearPath : () -> Cmd msg
 
 
 port copyToClipboard : String -> Cmd msg
