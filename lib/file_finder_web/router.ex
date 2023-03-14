@@ -20,6 +20,12 @@ defmodule FileFinderWeb.Router do
     plug :put_layout, {FileFinderWeb.LayoutView, :main}
   end
 
+  pipeline :events do
+    plug :accepts, ["json"]
+    plug :put_secure_browser_headers
+    plug FileFinderWeb.Events.Auth
+  end
+
   scope "/", FileFinderWeb do
     pipe_through :browser
 
@@ -59,6 +65,12 @@ defmodule FileFinderWeb.Router do
     patch "/files/:id", FileController, :update
     put "/files/:id", FileController, :update
     delete "/files/:id", FileController, :delete
+  end
+
+  scope "/events", FileFinderWeb do
+    pipe_through [:events, :authenticate_event]
+
+    post "/app/uninstalled", EventsController, :uninstall
   end
 
   # Enables LiveDashboard only for development

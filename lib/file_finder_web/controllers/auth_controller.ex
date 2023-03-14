@@ -4,6 +4,7 @@ defmodule FileFinderWeb.AuthController do
   plug Ueberauth
 
   alias FileFinder.Shops
+  alias FileFinder.Shops.Shop
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
     if has_valid_hmac?(conn, params) do
@@ -16,23 +17,25 @@ defmodule FileFinderWeb.AuthController do
         |> redirect(to: "/")
       else
         if is_nil(shop) do
-          # fresh install
           case Shops.create_shop(attrs) do
             {:ok, created} ->
+              {:ok, _response} = Shop.setup(created)
+
               conn
               |> put_session(:shop_id, created.id)
-              |> redirect(to: "/")
+              |> redirect(to: "/welcome")
 
             {:error, _} ->
               raise FileFinderWeb.Error, "Error creating shop"
           end
         else
-          # is this a reinstall?
           case Shops.update_shop(shop, %{token: attrs.token}) do
             {:ok, updated} ->
+              {:ok, _response} = Shop.setup(updated)
+
               conn
               |> put_session(:shop_id, updated.id)
-              |> redirect(to: "/")
+              |> redirect(to: "/welcome")
 
             {:error, _} ->
               raise FileFinderWeb.Error, "Error updating shop token"

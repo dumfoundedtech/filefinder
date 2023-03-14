@@ -2,6 +2,8 @@ defmodule FileFinder.Shops.Shop do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias FileFinder.Shopify
+
   schema "shops" do
     field :name, :string
     field :token, :string
@@ -41,7 +43,7 @@ defmodule FileFinder.Shops.Shop do
     vars = %{
       topic: "APP_UNINSTALLED",
       webhookSubscription: %{
-        callbackUrl: "https://filefinderapp.com/events/app/uninstalled",
+        callbackUrl: System.get_env("EVENTS_ENDPOINT") <> "/events/app/uninstalled",
         format: "JSON"
       }
     }
