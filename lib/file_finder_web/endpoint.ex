@@ -31,6 +31,8 @@ defmodule FileFinderWeb.Endpoint do
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :file_finder
   end
 
+  plug :put_raw_body
+
   plug Phoenix.LiveDashboard.RequestLogger,
     param_key: "request_logger",
     cookie_key: "request_logger"
@@ -47,4 +49,15 @@ defmodule FileFinderWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug FileFinderWeb.Router
+
+  defp put_raw_body(conn, _) do
+    case conn.path_info do
+      ["events" | _] ->
+        {:ok, body, conn_} = Plug.Conn.read_body(conn)
+        Plug.Conn.put_private(conn_, :raw_body, body)
+
+      _ ->
+        conn
+    end
+  end
 end

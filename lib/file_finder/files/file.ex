@@ -3,6 +3,7 @@ defmodule FileFinder.Files.File do
   import Ecto.Changeset
 
   alias FileFinder.Repo
+  alias FileFinder.Shopify
 
   schema "files" do
     field :alt, :string
@@ -190,7 +191,7 @@ defmodule FileFinder.Files.File do
   end
 
   defp request_shopify_ids_help(cursor, shop, shopify_file_ids) do
-    case send_shopify_request(@shopify_ids_query, %{cursor: cursor}, shop) do
+    case Shopify.send_request(@shopify_ids_query, %{cursor: cursor}, shop) do
       {:ok, %Neuron.Response{body: %{"data" => %{"files" => files}}}} ->
         update =
           shopify_file_ids
@@ -227,7 +228,7 @@ defmodule FileFinder.Files.File do
   end
 
   def request_shopify_file(shopify_id, shop) do
-    case send_shopify_request(@shopify_file_query, %{id: shopify_id}, shop) do
+    case Shopify.send_request(@shopify_file_query, %{id: shopify_id}, shop) do
       {:ok, %Neuron.Response{body: %{"data" => %{"node" => node}}}} ->
         {:ok, node}
 
@@ -310,7 +311,7 @@ defmodule FileFinder.Files.File do
       }
     }
 
-    request = send_shopify_request(@shopify_stage_upload_query, vars, shop)
+    request = Shopify.send_request(@shopify_stage_upload_query, vars, shop)
 
     case request do
       {:ok,
@@ -357,7 +358,7 @@ defmodule FileFinder.Files.File do
       }
     }
 
-    send_shopify_request(@shopify_file_create_query, vars, shop)
+    Shopify.send_request(@shopify_file_create_query, vars, shop)
   end
 
   defp mimetype_to_content_type(mimetype) do
@@ -386,23 +387,6 @@ defmodule FileFinder.Files.File do
       fileIds: [shopify_id]
     }
 
-    send_shopify_request(@shopify_file_delete_query, vars, shop)
-  end
-
-  defp send_shopify_request(query, vars, shop) do
-    config = Application.fetch_env!(:neuron, FileFinder.Files.File)
-
-    Neuron.Config.set(url: "https://#{shop.name}" <> config[:endpoint])
-    Neuron.Config.set(connection_opts: config[:connection_opts])
-
-    Neuron.Config.set(
-      headers: [
-        "Content-Type": "application/json",
-        "X-Shopify-Access-Token": shop.token
-      ]
-    )
-
-    Neuron.query(query, vars)
-    |> FileFinder.pass_through_debug_log()
+    Shopify.send_request(@shopify_file_delete_query, vars, shop)
   end
 end
