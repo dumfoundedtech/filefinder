@@ -8,7 +8,7 @@ defmodule FileFinder.ShopsTest do
 
     import FileFinder.ShopsFixtures
 
-    @invalid_attrs %{name: nil, token: nil}
+    @invalid_attrs %{name: nil, token: nil, active: nil}
 
     test "list_shops/0 returns all shops" do
       shop = shop_fixture()

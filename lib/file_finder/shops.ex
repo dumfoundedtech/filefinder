@@ -44,10 +44,10 @@ defmodule FileFinder.Shops do
 
   ## Examples
 
-      iex> get_shop_by_name!("shop.myshopify.com")
+      iex> get_shop_by_name("shop.myshopify.com")
       %Shop{}
 
-      iex> get_shop_by_name!("")
+      iex> get_shop_by_name("")
       nil
 
   """

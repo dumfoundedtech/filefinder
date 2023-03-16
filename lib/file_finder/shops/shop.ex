@@ -7,6 +7,7 @@ defmodule FileFinder.Shops.Shop do
   schema "shops" do
     field :name, :string
     field :token, :string
+    field :active, :boolean, default: true
     has_many :dirs, FileFinder.Files.Dir
     has_many :files, FileFinder.Files.File
 
@@ -16,14 +17,41 @@ defmodule FileFinder.Shops.Shop do
   @doc false
   def changeset(shop, attrs) do
     shop
-    |> cast(attrs, [:name, :token])
+    |> cast(attrs, [:name, :token, :active])
     |> validate_required([:name, :token])
     |> unique_constraint(:name)
   end
 
-  @webhook_subscription_create_query """
-    mutation webhookSubscriptionCreate($topic: WebhookSubscriptionTopic!, $webhookSubscription: WebhookSubscriptionInput!) {
-      webhookSubscriptionCreate(topic: $topic, webhookSubscription: $webhookSubscription) {
+  @get_data_query """
+    query getData {
+      shop {
+        billingAddress {
+          company
+          city
+          province
+          zip
+          country
+          phone
+        }
+        description
+        email
+        ianaTimezone
+        id
+        name
+        plan {
+          displayName
+        }
+      }
+    }
+  """
+
+  def get_data(shop) do
+    Shopify.send_request(@get_data_query, %{}, shop)
+  end
+
+  @setup_query """
+    mutation setup($topic: WebhookSubscriptionTopic!, $subscription: WebhookSubscriptionInput!) {
+      webhookSubscriptionCreate(topic: $topic, webhookSubscription: $subscription) {
         webhookSubscription {
           id
           topic
@@ -42,12 +70,12 @@ defmodule FileFinder.Shops.Shop do
   def setup(shop) do
     vars = %{
       topic: "APP_UNINSTALLED",
-      webhookSubscription: %{
+      subscription: %{
         callbackUrl: System.get_env("EVENTS_ENDPOINT") <> "/events/app/uninstalled",
         format: "JSON"
       }
     }
 
-    Shopify.send_request(@webhook_subscription_create_query, vars, shop)
+    Shopify.send_request(@setup_query, vars, shop)
   end
 end
