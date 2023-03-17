@@ -254,7 +254,7 @@ defmodule FileFinder.Files do
           create_file(attrs)
         else
           attrs
-          |> Map.merge(%{dir_id: dir_id})
+          |> Map.merge(%{"dir_id" => dir_id})
           |> create_file()
         end
 
