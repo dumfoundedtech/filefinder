@@ -33,6 +33,7 @@ app.ports.toggleModal.subscribe(() => {
     } else {
       document.body.className = "noscroll";
       modal.showModal();
+      modal.scrollTop = 0;
     }
 
     modal.addEventListener("close", (_) => (document.body.className = ""));
