@@ -236,22 +236,7 @@ viewMain model =
     Html.main_ [ Html.Attributes.id "main" ]
         (viewInfoBar model
             :: (if List.isEmpty items then
-                    [ Html.div [ Html.Attributes.id "empty-items" ]
-                        [ Html.p [ Html.Attributes.id "empty-items-message" ]
-                            [ Html.text "Let's get started!" ]
-                        , Html.div [ Html.Attributes.id "empty-items-actions" ]
-                            [ Html.button [ Html.Events.onClick ClickNewFolder ]
-                                [ Icons.add [ "button-icon" ]
-                                , Html.text "New Folder"
-                                ]
-                            , Html.button
-                                [ Html.Events.onClick ClickUploadFile ]
-                                [ Icons.cloud [ "button-icon" ]
-                                , Html.text "Upload File"
-                                ]
-                            ]
-                        ]
-                    ]
+                    viewEmptyItems model
 
                 else
                     List.map viewItem items
@@ -290,6 +275,34 @@ viewInfoBar model =
                     []
     in
     Html.div [ Html.Attributes.id "info-bar" ] (seperator :: breadCrumbs)
+
+
+viewEmptyItems : Model -> List (Html.Html Msg)
+viewEmptyItems model =
+    let
+        ( introText, newFolderText ) =
+            if model.session.dirId == Data.Dir.initId then
+                ( "Let's get started!", "New Folder" )
+
+            else
+                ( "What would you like to do here?", "New Subfolder" )
+    in
+    [ Html.div [ Html.Attributes.id "empty-items" ]
+        [ Html.p [ Html.Attributes.id "empty-items-message" ]
+            [ Html.text introText ]
+        , Html.div [ Html.Attributes.id "empty-items-actions" ]
+            [ Html.button [ Html.Events.onClick ClickNewFolder ]
+                [ Icons.add [ "button-icon" ]
+                , Html.text newFolderText
+                ]
+            , Html.button
+                [ Html.Events.onClick ClickUploadFile ]
+                [ Icons.cloud [ "button-icon" ]
+                , Html.text "Upload File"
+                ]
+            ]
+        ]
+    ]
 
 
 viewItem : Html.Html Msg -> Html.Html Msg
