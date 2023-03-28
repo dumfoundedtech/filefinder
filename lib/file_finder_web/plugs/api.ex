@@ -1,4 +1,4 @@
-defmodule FileFinderWeb.Api.Auth do
+defmodule FileFinderWeb.Plugs.Api do
   @moduledoc """
   A module plug that verifies the bearer token in the request headers.
   The authorization header value may look like `Bearer xxxxxxx`.
@@ -48,16 +48,16 @@ defmodule FileFinderWeb.Api.Auth do
 
   ## Examples
 
-      iex> FileFinderWeb.Api.Auth.verify_token("good-token", conn)
+      iex> FileFinderWeb.Plugs.Api.verify_token("good-token", conn)
       {:ok, 1}
 
-      iex> FileFinderWeb.Api.Auth.verify_token("bad-token", conn)
+      iex> FileFinderWeb.Plugs.Api.verify_token("bad-token", conn)
       {:error, :invalid}
 
-      iex> FileFinderWeb.Api.Auth.verify_token("old-token", conn)
+      iex> FileFinderWeb.Plugs.Api.verify_token("old-token", conn)
       {:error, :expired}
 
-      iex> FileFinderWeb.Api.Auth.verify_token(nil, conn)
+      iex> FileFinderWeb.Plugs.Api.verify_token(nil, conn)
       {:error, :missing}
 
   """
