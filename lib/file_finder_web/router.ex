@@ -9,7 +9,7 @@ defmodule FileFinderWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug FileFinderWeb.Api.Auth
+    plug FileFinderWeb.Plugs.Api
   end
 
   pipeline :browser do
@@ -23,7 +23,7 @@ defmodule FileFinderWeb.Router do
   pipeline :events do
     plug :accepts, ["json"]
     plug :put_secure_browser_headers
-    plug FileFinderWeb.Events.Auth
+    plug FileFinderWeb.Plugs.Events
   end
 
   scope "/", FileFinderWeb do

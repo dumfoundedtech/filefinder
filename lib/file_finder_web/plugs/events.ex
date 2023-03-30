@@ -1,4 +1,4 @@
-defmodule FileFinderWeb.Events.Auth do
+defmodule FileFinderWeb.Plugs.Events do
   @moduledoc """
   A module plug that verifies webhook event signatures.
   """
@@ -47,13 +47,13 @@ defmodule FileFinderWeb.Events.Auth do
 
   ## Examples
 
-      iex> FileFinderWeb.Events.Auth.verify_signature("good-signature", conn)
+      iex> FileFinderWeb.Plugs.Events.verify_signature("good-signature", conn)
       {:ok}
 
-      iex> FileFinderWeb.Events.Auth.verify_signature("bad-signature", conn)
+      iex> FileFinderWeb.Plugs.Events.verify_signature("bad-signature", conn)
       {:error, :invalid}
 
-      iex> FileFinderWeb.Events.Auth.verify_signature(nil, conn)
+      iex> FileFinderWeb.Plugs.Events.verify_signature(nil, conn)
       {:error, :missing_signature}
 
   """
