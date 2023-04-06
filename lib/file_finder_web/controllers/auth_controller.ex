@@ -13,9 +13,14 @@ defmodule FileFinderWeb.AuthController do
       shop = Shops.get_shop_by_name(attrs.name)
 
       if shop && shop.token == attrs.token do
-        conn
-        |> put_session(:shop_id, shop.id)
-        |> redirect(to: "/")
+        if Shop.get_current_plan(shop) do
+          conn
+          |> put_session(:shop_id, shop.id)
+          |> redirect(to: "/")
+        else
+          # TODO: is this possible?
+          subscribe_to_plan(conn, shop)
+        end
       else
         if is_nil(shop) do
           case Shops.create_shop(attrs) do
@@ -24,11 +29,16 @@ defmodule FileFinderWeb.AuthController do
 
               # side effects
               {:ok, _response} = Airtable.post_event("app/installed", data)
-              {:ok, _response} = Shop.setup(created)
+              {:ok, _response} = Shop.setup_events(created)
 
-              conn
-              |> put_session(:shop_id, created.id)
-              |> redirect(to: "/welcome")
+              # TODO: is this possible?
+              if Shop.get_current_plan(created) do
+                conn
+                |> put_session(:shop_id, created.id)
+                |> redirect(to: "/welcome")
+              else
+                subscribe_to_plan(conn, shop)
+              end
 
             {:error, _} ->
               raise FileFinderWeb.Error, "Error creating shop"
@@ -40,11 +50,16 @@ defmodule FileFinderWeb.AuthController do
 
               # side effects
               {:ok, _response} = Airtable.post_event("app/reinstalled", data)
-              {:ok, _response} = Shop.setup(updated)
+              {:ok, _response} = Shop.setup_events(updated)
 
-              conn
-              |> put_session(:shop_id, updated.id)
-              |> redirect(to: "/welcome")
+              # TODO: is this possible?
+              if Shop.get_current_plan(updated) do
+                conn
+                |> put_session(:shop_id, updated.id)
+                |> redirect(to: "/welcome")
+              else
+                subscribe_to_plan(conn, updated)
+              end
 
             {:error, _} ->
               raise FileFinderWeb.Error, "Error updating shop token"
@@ -89,5 +104,17 @@ defmodule FileFinderWeb.AuthController do
       name: params["shop"],
       token: auth.credentials.token
     }
+  end
+
+  defp subscribe_to_plan(conn, shop) do
+    case Shop.subscribe_to_plan(shop) do
+      {:ok, %Neuron.Response{body: %{"data" => data}}} ->
+        conn
+        |> put_session(:shop_id, shop.id)
+        |> redirect(external: data["appSubscriptionCreate"]["confirmationUrl"])
+
+      {:error, _} ->
+        raise FileFinderWeb.Error, "Error subscribing to plan"
+    end
   end
 end
