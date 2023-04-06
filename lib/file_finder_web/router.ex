@@ -71,6 +71,7 @@ defmodule FileFinderWeb.Router do
     pipe_through [:events, :authenticate_event]
 
     post "/app/uninstalled", EventsController, :uninstall
+    post "/app_subscriptions/update", EventsController, :event
     post "/customers/data_request", EventsController, :event
     post "/customers/redact", EventsController, :event
     post "/shop/redact", EventsController, :event

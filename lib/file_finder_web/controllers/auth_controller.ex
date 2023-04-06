@@ -24,7 +24,7 @@ defmodule FileFinderWeb.AuthController do
 
               # side effects
               {:ok, _response} = Airtable.post_event("app/installed", data)
-              {:ok, _response} = Shop.setup(created)
+              {:ok, _response} = Shop.setup_events(created)
 
               conn
               |> put_session(:shop_id, created.id)
@@ -40,7 +40,7 @@ defmodule FileFinderWeb.AuthController do
 
               # side effects
               {:ok, _response} = Airtable.post_event("app/reinstalled", data)
-              {:ok, _response} = Shop.setup(updated)
+              {:ok, _response} = Shop.setup_events(updated)
 
               conn
               |> put_session(:shop_id, updated.id)

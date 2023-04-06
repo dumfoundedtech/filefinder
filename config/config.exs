@@ -40,7 +40,7 @@ config :phoenix, :json_library, Jason
 # Ueberauth Shopify authentication
 config :ueberauth, Ueberauth,
   providers: [
-    shopify: {Ueberauth.Strategy.Shopify, [default_scope: "read_files,write_files,read_products"]}
+    shopify: {Ueberauth.Strategy.Shopify, [default_scope: "read_files,write_files"]}
   ]
 
 # Neuron GraphQL client

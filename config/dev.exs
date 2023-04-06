@@ -77,3 +77,6 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Neuron GraphQL client
 config :neuron, FileFinder.Files.File, connection_opts: [ssl: [{:versions, [:"tlsv1.2"]}]]
+
+# App env
+config :file_finder, env: :dev
