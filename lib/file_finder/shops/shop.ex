@@ -49,8 +49,8 @@ defmodule FileFinder.Shops.Shop do
     Shopify.send_request(@get_data_query, %{}, shop)
   end
 
-  @setup_events_query """
-    mutation setupEvents($topic: WebhookSubscriptionTopic!, $subscription: WebhookSubscriptionInput!) {
+  @setup_event_mutation """
+    mutation setupEvent($topic: WebhookSubscriptionTopic!, $subscription: WebhookSubscriptionInput!) {
       webhookSubscriptionCreate(topic: $topic, webhookSubscription: $subscription) {
         webhookSubscription {
           id
@@ -68,7 +68,15 @@ defmodule FileFinder.Shops.Shop do
   """
 
   def setup_events(shop) do
-    vars = %{
+    app_subscriptions_update_vars = %{
+      topic: "APP_SUBSCRIPTIONS_UPDATE",
+      subscription: %{
+        callbackUrl: System.get_env("EVENTS_ENDPOINT") <> "/events/app_subscriptions/update",
+        format: "JSON"
+      }
+    }
+
+    app_uninstalled_vars = %{
       topic: "APP_UNINSTALLED",
       subscription: %{
         callbackUrl: System.get_env("EVENTS_ENDPOINT") <> "/events/app/uninstalled",
@@ -76,7 +84,10 @@ defmodule FileFinder.Shops.Shop do
       }
     }
 
-    Shopify.send_request(@setup_events_query, vars, shop)
+    with {:ok, _response} <-
+           Shopify.send_request(@setup_event_mutation, app_subscriptions_update_vars, shop) do
+      Shopify.send_request(@setup_event_mutation, app_uninstalled_vars, shop)
+    end
   end
 
   @get_current_plan_query """
