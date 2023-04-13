@@ -71,7 +71,7 @@ defmodule FileFinder.Shops.Shop do
     app_subscriptions_update_vars = %{
       topic: "APP_SUBSCRIPTIONS_UPDATE",
       subscription: %{
-        callbackUrl: System.get_env("EVENTS_ENDPOINT") <> "/events/app_subscriptions/update",
+        callbackUrl: System.get_env("APP_ENDPOINT") <> "/events/app_subscriptions/update",
         format: "JSON"
       }
     }
@@ -79,7 +79,7 @@ defmodule FileFinder.Shops.Shop do
     app_uninstalled_vars = %{
       topic: "APP_UNINSTALLED",
       subscription: %{
-        callbackUrl: System.get_env("EVENTS_ENDPOINT") <> "/events/app/uninstalled",
+        callbackUrl: System.get_env("APP_ENDPOINT") <> "/events/app/uninstalled",
         format: "JSON"
       }
     }
@@ -144,8 +144,10 @@ defmodule FileFinder.Shops.Shop do
         }
       ],
       name: "Basic Plan",
-      returnUrl: FileFinderWeb.Endpoint.url() <> "/welcome",
-      test: Application.get_env(:file_finder, :env) !== :prod
+      returnUrl: System.get_env("APP_ENDPOINT") <> "/welcome",
+      test:
+        Application.get_env(:file_finder, :env) !== :prod ||
+          System.get_env("PURCHASE_ENV") === "test"
     }
 
     Shopify.send_request(@subscribe_to_plan_mutation, vars, shop)
