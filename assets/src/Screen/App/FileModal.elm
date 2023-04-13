@@ -174,7 +174,24 @@ update msg ({ file } as model) =
                             )
 
                         Err err ->
-                            ( { model | state = Error err }, Cmd.none )
+                            case err of
+                                Http.BadStatus code ->
+                                    if code == 404 then
+                                        ( { model
+                                            | session =
+                                                Session.removeFile model.file
+                                                    model.session
+                                          }
+                                        , Ports.toggleModal ()
+                                        )
+
+                                    else
+                                        ( { model | state = Error err }
+                                        , Cmd.none
+                                        )
+
+                                _ ->
+                                    ( { model | state = Error err }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
