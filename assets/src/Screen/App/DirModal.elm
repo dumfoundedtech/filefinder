@@ -236,7 +236,26 @@ update msg ({ session, dir } as model) =
                     )
 
                 Err err ->
-                    ( { model | state = Error err }, Cmd.none )
+                    case err of
+                        Http.BadStatus code ->
+                            if code == 404 then
+                                ( { model
+                                    | session =
+                                        Session.loadDirs
+                                            (Data.Dir.removeDir model.dir
+                                                session.dirs
+                                            )
+                                            session
+                                    , state = Init
+                                  }
+                                , Ports.toggleModal ()
+                                )
+
+                            else
+                                ( { model | state = Error err }, Cmd.none )
+
+                        _ ->
+                            ( { model | state = Error err }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
