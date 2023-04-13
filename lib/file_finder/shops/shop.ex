@@ -145,7 +145,9 @@ defmodule FileFinder.Shops.Shop do
       ],
       name: "Basic Plan",
       returnUrl: System.get_env("APP_ENDPOINT") <> "/welcome",
-      test: Application.get_env(:file_finder, :env) !== :prod
+      test:
+        Application.get_env(:file_finder, :env) !== :prod ||
+          System.get_env("PURCHASE_ENV") === "test"
     }
 
     Shopify.send_request(@subscribe_to_plan_mutation, vars, shop)
