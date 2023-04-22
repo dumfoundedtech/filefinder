@@ -36,6 +36,7 @@ defmodule FileFinderWeb.Router do
         resources "/files", FileController
         resources "/shops", ShopController
         get "/", PageController, :index
+        post "/switch", PageController, :switch
       end
     end
 
