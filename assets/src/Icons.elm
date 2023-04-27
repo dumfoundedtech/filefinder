@@ -1,8 +1,19 @@
-module Icons exposing (add, check, close, cloud, dir, externalLink, left, right)
+module Icons exposing
+    ( add
+    , check
+    , close
+    , closeWithListener
+    , cloud
+    , dir
+    , externalLink
+    , left
+    , right
+    )
 
 import Html
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+import Svg.Events
 
 
 
@@ -88,42 +99,57 @@ check classes =
 close : List String -> Html.Html msg
 close classes =
     svg [ class <| String.join " " classes, viewBox "0 0 24 24" ]
-        [ Svg.path
-            [ d <|
-                String.join " "
-                    [ "M15.78"
-                    , "14.36a1"
-                    , "1"
-                    , "0"
-                    , "0"
-                    , "1-1.42"
-                    , "1.42l-2.82-2.83-2.83"
-                    , "2.83a1"
-                    , "1"
-                    , "0"
-                    , "1"
-                    , "1-1.42-1.42l2.83-2.82L7.3"
-                    , "8.7a1"
-                    , "1"
-                    , "0"
-                    , "0"
-                    , "1"
-                    , "1.42-1.42l2.83"
-                    , "2.83"
-                    , "2.82-2.83a1"
-                    , "1"
-                    , "0"
-                    , "0"
-                    , "1"
-                    , "1.42"
-                    , "1.42l-2.83"
-                    , "2.83"
-                    , "2.83"
-                    , "2.82z"
-                    ]
-            ]
-            []
+        closeBody
+
+
+closeWithListener : List String -> msg -> Html.Html msg
+closeWithListener classes listener =
+    svg
+        [ class <| String.join " " classes
+        , viewBox "0 0 24 24"
+        , Svg.Events.onClick listener
         ]
+        closeBody
+
+
+closeBody : List (Svg.Svg msg)
+closeBody =
+    [ Svg.path
+        [ d <|
+            String.join " "
+                [ "M15.78"
+                , "14.36a1"
+                , "1"
+                , "0"
+                , "0"
+                , "1-1.42"
+                , "1.42l-2.82-2.83-2.83"
+                , "2.83a1"
+                , "1"
+                , "0"
+                , "1"
+                , "1-1.42-1.42l2.83-2.82L7.3"
+                , "8.7a1"
+                , "1"
+                , "0"
+                , "0"
+                , "1"
+                , "1.42-1.42l2.83"
+                , "2.83"
+                , "2.82-2.83a1"
+                , "1"
+                , "0"
+                , "0"
+                , "1"
+                , "1.42"
+                , "1.42l-2.83"
+                , "2.83"
+                , "2.83"
+                , "2.82z"
+                ]
+        ]
+        []
+    ]
 
 
 

@@ -8,6 +8,7 @@ module Session exposing
     , updateDir
     , updateDirId
     , updateFile
+    , updateSearch
     )
 
 import Data.Dir
@@ -25,6 +26,7 @@ type alias Session =
     { dirId : Data.Dir.Id
     , dirs : Data.Dir.Data
     , files : Data.File.Data
+    , search : String
     , shopId : Int
     , shopName : String
     , showWelcome : Bool
@@ -38,10 +40,11 @@ type alias Session =
 
 decoder : Json.Decode.Decoder Session
 decoder =
-    Json.Decode.map7 Session
+    Json.Decode.map8 Session
         (Json.Decode.succeed Data.Dir.initId)
         (Json.Decode.succeed Data.Dir.initData)
         (Json.Decode.succeed Data.File.initData)
+        (Json.Decode.succeed "")
         (Json.Decode.field "shop_id" Json.Decode.int)
         (Json.Decode.field "shop_name" Json.Decode.string)
         (Json.Decode.field "show_welcome" Json.Decode.bool)
@@ -54,7 +57,7 @@ decoder =
 
 updateDirId : Data.Dir.Id -> Session -> Session
 updateDirId dirId session =
-    { session | dirId = dirId }
+    { session | dirId = dirId, search = "" }
 
 
 loadDirs : Data.Dir.Data -> Session -> Session
@@ -94,6 +97,11 @@ removeFile file session =
             Dict.remove file.id session.files
     in
     { session | files = files }
+
+
+updateSearch : String -> Session -> Session
+updateSearch search session =
+    { session | search = search }
 
 
 

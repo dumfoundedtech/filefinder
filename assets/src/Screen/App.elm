@@ -1,5 +1,6 @@
-module Screen.App exposing (Model, Msg, init, update, view)
+module Screen.App exposing (Model, Msg, init, subscriptions, update, view)
 
+import Browser.Events
 import Data.Dir
 import Data.File
 import Dict
@@ -37,7 +38,10 @@ type Modal
 init : Session.Session -> ( Model, Cmd Msg )
 init session =
     if session.showWelcome then
-        routeWelcomeModal { session = session, modal = InitModal }
+        routeWelcomeModal
+            { session = session
+            , modal = InitModal
+            }
             (Screen.App.WelcomeModal.init session)
 
     else
@@ -53,7 +57,9 @@ init session =
 
 
 type Msg
-    = ClickBreadcrumb Data.Dir.Dir
+    = Search String
+    | CloseSearch
+    | ClickBreadcrumb Data.Dir.Dir
     | ClickNewFolder
     | ClickUploadFile
     | ClickDir Data.Dir.Dir
@@ -64,11 +70,20 @@ type Msg
     | FileModalMsg Screen.App.FileModal.Msg
     | NewFileModalMsg Screen.App.NewFileModal.Msg
     | WelcomeModalMsg Screen.App.WelcomeModal.Msg
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ session } as model) =
     case msg of
+        Search search ->
+            ( { model | session = Session.updateSearch search session }
+            , Cmd.none
+            )
+
+        CloseSearch ->
+            ( { model | session = Session.updateSearch "" session }, Cmd.none )
+
         ClickBreadcrumb dir ->
             ( { model | session = Session.updateDirId dir.id session }
             , Cmd.none
@@ -135,6 +150,9 @@ update msg ({ session } as model) =
                 _ ->
                     ( model, Cmd.none )
 
+        NoOp ->
+            ( model, Cmd.none )
+
 
 routeDirModal :
     Model
@@ -185,6 +203,33 @@ routeWelcomeModal model =
 
 
 
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    if String.isEmpty model.session.search then
+        Sub.none
+
+    else
+        Browser.Events.onKeyDown <|
+            Json.Decode.map
+                (\key ->
+                    case key of
+                        "Esc" ->
+                            CloseSearch
+
+                        "Escape" ->
+                            CloseSearch
+
+                        _ ->
+                            NoOp
+                )
+            <|
+                Json.Decode.field "key" Json.Decode.string
+
+
+
 -- VIEW
 
 
@@ -198,11 +243,31 @@ view model =
         ]
 
 
-viewHeader : Model -> Html.Html msg
+viewHeader : Model -> Html.Html Msg
 viewHeader model =
     Html.header [ Html.Attributes.id "header" ]
         [ Html.h1 []
-            [ Html.a [ Html.Attributes.href "/" ] [ Html.text "File Finder" ] ]
+            [ Html.a [ Html.Attributes.href "/" ]
+                [ Html.text "File Finder" ]
+            ]
+        , Html.div [ Html.Attributes.id "search" ]
+            (Html.input
+                [ Html.Attributes.placeholder "Search..."
+                , Html.Attributes.type_ "text"
+                , Html.Attributes.value model.session.search
+                , Html.Events.onInput Search
+                ]
+                []
+                :: (if String.isEmpty model.session.search then
+                        []
+
+                    else
+                        [ Icons.closeWithListener
+                            [ "close-icon" ]
+                            CloseSearch
+                        ]
+                   )
+            )
         , Html.a
             [ Html.Attributes.id "shop-link"
             , Html.Attributes.href <|
@@ -221,31 +286,63 @@ viewMain : Model -> Html.Html Msg
 viewMain model =
     let
         dirs =
-            List.map Tuple.second <|
-                List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
-                    Dict.toList model.session.dirs
+            if String.isEmpty model.session.search then
+                List.map Tuple.second <|
+                    List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
+                        Dict.toList model.session.dirs
+
+            else
+                List.map Tuple.second <|
+                    List.filter
+                        (\( _, v ) ->
+                            String.toLower v.name
+                                == String.toLower model.session.search
+                        )
+                        (Dict.toList model.session.dirs)
 
         files =
-            List.map Tuple.second <|
-                List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
-                    Dict.toList model.session.files
+            if String.isEmpty model.session.search then
+                List.map Tuple.second <|
+                    List.filter (\( _, v ) -> v.dirId == model.session.dirId) <|
+                        Dict.toList model.session.files
+
+            else
+                List.map Tuple.second <|
+                    List.filter
+                        (\( _, v ) ->
+                            String.toLower v.name
+                                == String.toLower model.session.search
+                        )
+                        (Dict.toList model.session.files)
 
         items =
             List.map viewDir dirs ++ List.map viewFile files
+
+        viewItems =
+            if List.isEmpty items then
+                viewEmptyItems model
+
+            else
+                List.map viewItem items
     in
     Html.main_ [ Html.Attributes.id "main" ]
-        (viewInfoBar model
-            :: (if List.isEmpty items then
-                    viewEmptyItems model
+        (if String.isEmpty model.session.search then
+            Html.div [ Html.Attributes.id "info-bar" ] (breadCrumbs model)
+                :: viewItems
 
-                else
-                    List.map viewItem items
-               )
+         else
+            Html.div [ Html.Attributes.id "info-bar" ]
+                [ Html.text <|
+                    "Searching for \""
+                        ++ model.session.search
+                        ++ "\"..."
+                ]
+                :: viewItems
         )
 
 
-viewInfoBar : Model -> Html.Html Msg
-viewInfoBar model =
+breadCrumbs : Model -> List (Html.Html Msg)
+breadCrumbs model =
     let
         dirs =
             Data.Dir.lineage model.session.dirId model.session.dirs
@@ -261,20 +358,19 @@ viewInfoBar model =
                     Json.Decode.succeed ( ClickBreadcrumb dir, True )
                 ]
                 [ Html.text dir.name ]
-
-        breadCrumbs =
-            case List.reverse dirs of
-                h :: t ->
-                    List.intersperse seperator <|
+    in
+    case List.reverse dirs of
+        h :: t ->
+            seperator
+                :: (List.intersperse seperator <|
                         List.reverse <|
                             Html.span [ Html.Attributes.class "breadcrumb" ]
                                 [ Html.text h.name ]
                                 :: List.map toBreadcrumb t
+                   )
 
-                [] ->
-                    []
-    in
-    Html.div [ Html.Attributes.id "info-bar" ] (seperator :: breadCrumbs)
+        [] ->
+            [ seperator ]
 
 
 viewEmptyItems : Model -> List (Html.Html Msg)
