@@ -252,7 +252,7 @@ viewHeader model =
             ]
         , Html.div [ Html.Attributes.id "search" ]
             (Html.input
-                [ Html.Attributes.placeholder "Search..."
+                [ Html.Attributes.placeholder "Search files and folders..."
                 , Html.Attributes.type_ "text"
                 , Html.Attributes.value model.session.search
                 , Html.Events.onInput Search
