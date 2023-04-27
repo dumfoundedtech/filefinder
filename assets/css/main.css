@@ -724,6 +724,14 @@ button {
 }
 
 @media (max-width: 899px) {
+  #app #header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1rem;
+    height: auto;
+    padding: 2rem;
+  }
+
   #app #header h1 {
     font-size: 1.875rem;
     width: 100%;
@@ -731,6 +739,15 @@ button {
 
   #app #header a#shop-link {
     font-size: 0.75rem;
+  }
+
+  #app #search {
+    padding: 0;
+    width: 100%;
+  }
+
+  #app #search input {
+    max-width: 540px;
   }
 
   #app #main {
