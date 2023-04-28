@@ -102,8 +102,15 @@ subscriptions model =
         Loading model_ ->
             Sub.map LoadingMsg <| Screen.Loading.subscriptions model_
 
+        App model_ ->
+            Sub.map AppMsg <| Screen.App.subscriptions model_
+
         _ ->
             Sub.none
+
+
+
+-- VIEW
 
 
 view : Model -> Browser.Document Msg
