@@ -295,8 +295,9 @@ viewMain model =
                 List.map Tuple.second <|
                     List.filter
                         (\( _, v ) ->
-                            String.toLower v.name
-                                == String.toLower model.session.search
+                            String.contains
+                                (String.toLower model.session.search)
+                                (String.toLower v.name)
                         )
                         (Dict.toList model.session.dirs)
 
@@ -310,8 +311,9 @@ viewMain model =
                 List.map Tuple.second <|
                     List.filter
                         (\( _, v ) ->
-                            String.toLower v.name
-                                == String.toLower model.session.search
+                            String.contains
+                                (String.toLower model.session.search)
+                                (String.toLower v.name)
                         )
                         (Dict.toList model.session.files)
 
