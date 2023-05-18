@@ -29,5 +29,8 @@ config :logger, level: :warn
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
+# Oban background jobs
+config :file_finder, Oban, testing: :inline
+
 # App env
 config :file_finder, env: :test

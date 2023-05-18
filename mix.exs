@@ -52,7 +52,8 @@ defmodule FileFinder.MixProject do
        git: "https://github.com/yalabot/ueberauth_shopify",
        branch: "fix-request-without-shop-crash"},
       {:neuron, "~> 5.1.0"},
-      {:httpoison, "~> 2.1"}
+      {:httpoison, "~> 2.1"},
+      {:oban, "~> 2.15"}
     ]
   end
 

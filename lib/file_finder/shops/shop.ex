@@ -115,8 +115,8 @@ defmodule FileFinder.Shops.Shop do
   end
 
   @subscribe_to_plan_mutation """
-    mutation subscribeToPlan($lineItems: [AppSubscriptionLineItemInput!]!, $name: String!, $returnUrl: URL!, $test: Boolean) {
-      appSubscriptionCreate(lineItems: $lineItems, name: $name, returnUrl: $returnUrl, test: $test) {
+    mutation subscribeToPlan($lineItems: [AppSubscriptionLineItemInput!]!, $name: String!, $returnUrl: URL!, $test: Boolean, $trialDays: Int) {
+      appSubscriptionCreate(lineItems: $lineItems, name: $name, returnUrl: $returnUrl, test: $test, trialDays: $trialDays) {
         appSubscription {
           id
           name

@@ -46,6 +46,18 @@ config :ueberauth, Ueberauth,
 # Neuron GraphQL client
 config :neuron, FileFinder.Files.File, endpoint: "/admin/api/2023-01/graphql.json"
 
+# Oban background jobs
+config :file_finder, Oban,
+  repo: FileFinder.Repo,
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"*/5 * * * *", FileFinder.Shops.BackgroundSyncScheduler}
+     ]},
+    Oban.Plugins.Pruner
+  ],
+  queues: [default: 10]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

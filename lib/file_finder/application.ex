@@ -15,7 +15,9 @@ defmodule FileFinder.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: FileFinder.PubSub},
       # Start the Endpoint (http/https)
-      FileFinderWeb.Endpoint
+      FileFinderWeb.Endpoint,
+      # Start Oban background jobs
+      {Oban, Application.fetch_env!(:file_finder, Oban)}
       # Start a worker by calling: FileFinder.Worker.start_link(arg)
       # {FileFinder.Worker, arg}
     ]
