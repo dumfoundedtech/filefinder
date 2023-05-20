@@ -7,9 +7,10 @@ defmodule FileFinder.Shops.BackgroundSyncScheduler do
   @impl Oban.Worker
   def perform(%Oban.Job{args: _args}) do
     Shops.list_shops()
+    |> Enum.filter(fn shop -> shop.active end)
     |> Enum.each(fn shop ->
       %{id: shop.id}
-      |> BackgroundSync.new()
+      |> BackgroundSync.new(priority: 3)
       |> Oban.insert()
     end)
   end

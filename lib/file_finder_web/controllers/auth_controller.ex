@@ -5,6 +5,7 @@ defmodule FileFinderWeb.AuthController do
 
   alias FileFinder.Airtable
   alias FileFinder.Shops
+  alias FileFinder.Shops.BackgroundSync
   alias FileFinder.Shops.Shop
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
@@ -23,6 +24,7 @@ defmodule FileFinderWeb.AuthController do
               {:ok, %Neuron.Response{body: %{"data" => data}}} = Shop.get_data(created)
 
               # side effects
+              %{id: created.id} |> BackgroundSync.new() |> Oban.insert()
               {:ok, _response} = Airtable.post_event("app/installed", data)
               {:ok, _response} = Shop.setup_events(created)
 
@@ -39,6 +41,7 @@ defmodule FileFinderWeb.AuthController do
               {:ok, %Neuron.Response{body: %{"data" => data}}} = Shop.get_data(updated)
 
               # side effects
+              %{id: updated.id} |> BackgroundSync.new() |> Oban.insert()
               {:ok, _response} = Airtable.post_event("app/reinstalled", data)
               {:ok, _response} = Shop.setup_events(updated)
 
