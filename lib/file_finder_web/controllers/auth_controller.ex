@@ -5,6 +5,7 @@ defmodule FileFinderWeb.AuthController do
 
   alias FileFinder.Airtable
   alias FileFinder.Shops
+  alias FileFinder.Shops.BackgroundSync
   alias FileFinder.Shops.Shop
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
