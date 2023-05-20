@@ -71,7 +71,7 @@ viewSteps =
         stepOneText =
             [ Html.text <|
                 """The upload button is in the bottom right corner, and if your
-                store already had files, you'll see that we dropped them in
+                store already had files, you'll see that we're dropping them in
                 the """
             , Html.span [ Html.Attributes.class "dir-ref" ]
                 [ Html.text <| "/root" ]
