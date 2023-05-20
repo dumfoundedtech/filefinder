@@ -8,7 +8,6 @@ module Screen.Loading exposing
     , view
     )
 
-import Api
 import Browser.Events
 import Data.Dir
 import Data.File
@@ -29,8 +28,7 @@ type alias Model =
 
 
 type State
-    = Syncing Int
-    | Loading Int
+    = Loading Int
     | LoadedDirs Int
     | LoadedFiles Int
     | Loaded Int
@@ -39,17 +37,20 @@ type State
 init : Session.Session -> ( Model, Cmd Msg )
 init session =
     ( { session = session
-      , state = Syncing 0
+      , state = Loading 0
       }
-    , Api.request session.token
-        { method = "GET"
-        , headers = []
-        , url = "/shop/sync"
-        , body = Http.emptyBody
-        , expect = Http.expectWhatever GotSync
-        , timeout = Nothing
-        , tracker = Nothing
-        }
+    , Cmd.batch
+        [ Data.Dir.getDirShopDirs Data.Dir.initId
+            { token = session.token
+            , tracker = Nothing
+            , tagger = GotDirs
+            }
+        , Data.File.getDirShopFiles Data.Dir.initId
+            { token = session.token
+            , tracker = Nothing
+            , tagger = GotFiles
+            }
+        ]
     )
 
 
@@ -65,8 +66,7 @@ type alias Update =
 
 
 type Msg
-    = GotSync (Result Http.Error ())
-    | GotDirs (Result Http.Error Data.Dir.Data)
+    = GotDirs (Result Http.Error Data.Dir.Data)
     | GotFiles (Result Http.Error Data.File.Data)
     | Tick Int
 
@@ -74,37 +74,6 @@ type Msg
 update : Msg -> Model -> Update
 update msg model =
     case msg of
-        GotSync result ->
-            case result of
-                Ok _ ->
-                    case model.state of
-                        Syncing time ->
-                            { model = { model | state = Loading time }
-                            , cmd =
-                                Cmd.batch
-                                    [ Data.Dir.getDirShopDirs Data.Dir.initId
-                                        { token = model.session.token
-                                        , tracker = Nothing
-                                        , tagger = GotDirs
-                                        }
-                                    , Data.File.getDirShopFiles Data.Dir.initId
-                                        { token = model.session.token
-                                        , tracker = Nothing
-                                        , tagger = GotFiles
-                                        }
-                                    ]
-                            , nextScreen = Session.CurrentScreen
-                            }
-
-                        _ ->
-                            updateModel model
-
-                Err err ->
-                    { model = model
-                    , cmd = Cmd.none
-                    , nextScreen = Session.ErrorScreen err
-                    }
-
         GotDirs result ->
             case result of
                 Ok dirs ->
@@ -169,9 +138,6 @@ update msg model =
 
         Tick delta ->
             case model.state of
-                Syncing time ->
-                    updateModel { model | state = Syncing <| time + delta }
-
                 Loading time ->
                     updateModel { model | state = Loading <| time + delta }
 
@@ -228,9 +194,6 @@ view model =
 
         class =
             case model.state of
-                Syncing time ->
-                    animateIn time
-
                 Loading time ->
                     animateIn time
 

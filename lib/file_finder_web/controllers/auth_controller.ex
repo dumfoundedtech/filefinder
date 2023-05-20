@@ -23,6 +23,7 @@ defmodule FileFinderWeb.AuthController do
               {:ok, %Neuron.Response{body: %{"data" => data}}} = Shop.get_data(created)
 
               # side effects
+              %{id: created.id} |> BackgroundSync.new() |> Oban.insert()
               {:ok, _response} = Airtable.post_event("app/installed", data)
               {:ok, _response} = Shop.setup_events(created)
 
@@ -39,6 +40,7 @@ defmodule FileFinderWeb.AuthController do
               {:ok, %Neuron.Response{body: %{"data" => data}}} = Shop.get_data(updated)
 
               # side effects
+              %{id: updated.id} |> BackgroundSync.new() |> Oban.insert()
               {:ok, _response} = Airtable.post_event("app/reinstalled", data)
               {:ok, _response} = Shop.setup_events(updated)
 

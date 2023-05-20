@@ -9,7 +9,7 @@ defmodule FileFinder.Shops.BackgroundSyncScheduler do
     Shops.list_shops()
     |> Enum.each(fn shop ->
       %{id: shop.id}
-      |> BackgroundSync.new()
+      |> BackgroundSync.new(priority: 3)
       |> Oban.insert()
     end)
   end
