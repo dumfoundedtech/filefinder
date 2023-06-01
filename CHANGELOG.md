@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1
+
+- [Update pheonix buildpack](https://www.gigalixir.com/blog/end-of-life-phoenix-buildpack/)
+
 ## 1.3.0
 
 - Reduce subscription cost
