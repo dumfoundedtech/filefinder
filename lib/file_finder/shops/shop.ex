@@ -137,7 +137,7 @@ defmodule FileFinder.Shops.Shop do
         %{
           plan: %{
             appRecurringPricingDetails: %{
-              price: %{amount: 43.0, currencyCode: "USD"},
+              price: %{amount: 1.99, currencyCode: "USD"},
               interval: "EVERY_30_DAYS"
             }
           }
@@ -147,8 +147,7 @@ defmodule FileFinder.Shops.Shop do
       returnUrl: System.get_env("APP_ENDPOINT") <> "/welcome",
       test:
         Application.get_env(:file_finder, :env) !== :prod ||
-          System.get_env("PURCHASE_ENV") === "test",
-      trialDays: 14
+          System.get_env("PURCHASE_ENV") === "test"
     }
 
     Shopify.send_request(@subscribe_to_plan_mutation, vars, shop)

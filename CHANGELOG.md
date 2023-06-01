@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+- Reduce subscription cost
+- Remove free trial
+
 ## 1.2.0
 
 - Add background syncing
